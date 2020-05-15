@@ -108,8 +108,8 @@ for(i in 1:(Pnum-1)){
 }
 
 par(mar = c(5, 20, 4.5, 2))
-colorlow<-"darkseagreen1"
-colorhigh<-"white"
+colorlow<-"skyblue"
+colorhigh<-"tomato"
 color2D.matplot(AIC, show.values = TRUE,axes = FALSE,show.legend=TRUE,xlab = "",ylab = "",vcex = 2,vcol = "black",extremes = c(colorlow,colorhigh))
 axis(3, at = seq_len(ncol(CV)) - 0.5,
      labels = Pnames, tick = FALSE, cex.axis = 2)
