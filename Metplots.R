@@ -1,6 +1,7 @@
 rm(list = ls())
 graphics.off()
 source("plots.R")
+source("GDDEDD.R")
 #maca-met projections 2066-2099 34 tot
 load("Data/MACAv2-METDATA/GDD_all")
 load("Data/MACAv2-METDATA/EDD_all")
@@ -71,4 +72,15 @@ a=plot_usmap(regions = "counties",include=c("PA","NY","NJ","MD","DE","DC","NC","
              data=change, values = "Tmean") + labs(title = "Change of mean temperature between 2074-2099 and 1979-2004")+ 
   scale_fill_gradient2(low = "white", high ="red", mid="lightpink",limits=c(2.5,4.5),midpoint=3.5,name="T (degree C)")+theme(plot.title = element_text(size=14))
 plot(a)
+
+
+
+
+
+
+
+#test for EDD
+load("Data/MACAv2-METDATA/EDD_proj_linearshift")
+boxhist2(EDD,EDD_proj,"EDD (degree ays)","EDD projection under linear shifted temperature (2074-2099)","MACA-METDATA EDD projection (2074-2099)")
+
 

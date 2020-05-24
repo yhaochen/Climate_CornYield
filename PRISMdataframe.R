@@ -175,7 +175,7 @@ SPI<-matrix(NA,nrow=32*countynum,ncol=datanum) #annual mean SPI
 PR<-matrix(NA,nrow=32*countynum,ncol=datanum)
 for (i in 1:datanum){
   for (j in 1:countynum){
-    monthly_pr<-read.table(paste("Data/",datanames[i],"/Pr/Pr_",datanames[i],"_",originalcountynames[j],sep=""))
+    monthly_pr<-read.table(paste("Data/",datanames[i],"/Pr_monthly/Pr_monthly_",datanames[i],"_",originalcountynames[j],sep=""))
     Year<-read.table(paste("Data/",datanames[i],"/Year_",datanames[i],sep=""))
     startpoint<-(1982-Year[1,1]-1)*12+1
     endpoint<-(2013-Year[1,1])*12

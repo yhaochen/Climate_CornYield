@@ -51,14 +51,14 @@ for (i in 1:32){
     #determine which grids to get based on which counties we need
     gridstoget<-which(countyname==countytoget[n],arr.ind = T)
     gridnum<-dim(gridstoget)[1]
-    GS<-c((countymeanSF[n]):(countymeanFF[n]))
+    GS<-c(k:(k+184))
     Prgrid<-matrix(NA,nrow=gridnum,ncol=k+305)
     for (j in 1:gridnum){
       #Prgrid is the daily data of Pr in given county given year
       Prgrid[j, ]<-Pr[gridstoget[j,2]-599,dim_lat+1-gridstoget[j,1], ] #dimension=(lon,lat), and lat order is reversed
     }
-    Prgrid<-colMeans(Prgrid, na.rm = FALSE, dims = 1) #county mean data in each day
-    #Prgrid<-Prgrid[complete.cases(Prgrid), ]
+    Prgrid<-Prgrid[complete.cases(Prgrid), ]
+    Prgrid<-colMeans(Prgrid) #county mean data in each day
     Precipitation_GS[n,i]<-sum(Prgrid[GS])
     for (m in 1:12){
       daystoget<-days[m]
@@ -69,9 +69,9 @@ for (i in 1:32){
   }
   print(i)
 }
-write.table(Precipitation,paste("Pr"))
+write.table(Precipitation_GS,paste("Pr"))
 for (n in 1:countynum){
-  write.table(Precipitation[n, ],paste("Data/PRISM/Pr/Pr_PRISM_",countytoget[n],sep = ""), sep=" ")
+  write.table(Precipitation_GS[n, ],paste("Data/PRISM/Pr/Pr_PRISM_",countytoget[n],sep = ""), sep=" ")
 }
 for (n in 1:countynum){
   write.table(Precipitation_month[n, ],paste("Data/PRISM/Pr_monthly/Pr_monthly_PRISM_",countytoget[n],sep = ""), sep=" ")
