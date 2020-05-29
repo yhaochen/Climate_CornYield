@@ -193,8 +193,9 @@ for (i in 1:datanum){
 
 
 #save all data in a dataframe, by each county, then each year
-Data_prism<-data.frame(Yield=yield,Yield_anomaly=yield_anomaly,GDD=GDD[ ,1],GDD_anomaly=GDD_anomaly[ ,1],EDD=EDD[ ,1],EDD_anomaly=EDD_anomaly[ ,1],Pr=PR[ ,1],SPI=SPI[ ,1],Area=area,
+Data<-data.frame(Yield=yield,Yield_anomaly=yield_anomaly,GDD=GDD[ ,1],GDD_anomaly=GDD_anomaly[ ,1],EDD=EDD[ ,1],EDD_anomaly=EDD_anomaly[ ,1],Pr=PR[ ,1],SPI=SPI[ ,1],Area=area,
                        StateANSI=rep(StateANSI,each=32),countyANSI=rep(CountyANSI,each=32),fips=rep(ANSI,each=32),year=rep(c(1:32),countynum))
+
 
 #lat lon of each county centroid
 Data_prism$lat<-rep(NA,(32*countynum))

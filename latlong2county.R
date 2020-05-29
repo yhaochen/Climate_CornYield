@@ -27,8 +27,4 @@ latlong2county <- function(pointsDF) {
   countyNames[indices]
 }
 
-# Test the function using points in Wisconsin and Oregon.
-testPoints <- data.frame(x = c(-77.4805), y = c(40.85))
-
-latlong2county(testPoints)
 
