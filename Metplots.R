@@ -79,8 +79,4 @@ plot(a)
 
 
 
-#test for EDD
-load("Data/MACAv2-METDATA/EDD_proj_linearshift")
-boxhist2(EDD,EDD_proj,"EDD (degree ays)","EDD projection under linear shifted temperature (2074-2099)","MACA-METDATA EDD projection (2074-2099)")
-
 

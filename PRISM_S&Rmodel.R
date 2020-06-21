@@ -33,8 +33,8 @@ for (i in 1:statenum){
   Yield_state<-Data_prism$Yield[index]
   Year_state<-Data_prism$year[index]
   
-  newdata<-data.frame(Yield=log(Yield_state),year=as.integer(Year_state),year_sqr=as.integer(Year_state)^2)
-  model<-lm(Yield~year+year_sqr,data = newdata) #a quadratic time trend fit for each state
+  newdata<-data.frame(Yield=log(Yield_state),year=as.integer(Year_state))
+  model<-lm(Yield~poly(year,2),data = newdata) #a quadratic time trend fit for each state
   Yield_predict<-predict(model,newdata) 
   for (j in 1:Year){
     index<-which(Year_state == levels(Data_prism$year)[j])
@@ -44,7 +44,7 @@ for (i in 1:statenum){
 trendindex<-(as.integer(Data_prism$StateANSI)-1)*Year+as.integer(Data_prism$year)  #find the index of detrending yield based on state and year
 Data_prism$logYield<-log(Data_prism$Yield)-Yield_stateyear[trendindex]   #this anomaly is: yield - the quadratic trend
 
-model<-lm(logYield~GDD+EDD+Pr+Pr^2+SPI+year+fips,data=Data_prism, weights=Data_prism$Area) #year and fips are fixed effects
+model<-lm(logYield~GDD+EDD+poly(Pr,2),data=Data_prism, weights=Data_prism$Area) #year and fips are fixed effects
 hind<-predict(model,Data_prism)
 Data_prism$hindcast<-exp(hind+Yield_stateyear[trendindex]) #the hindcasts
 Data_prism$residual<-Data_prism$Yield-Data_prism$hindcast  #the residuals
@@ -58,6 +58,5 @@ for (i in 1:32){
   plot(a)
 }
 
-
-
-
+Data_prism$loghind<-hind
+sqrt(mean((Data_prism$logYield[1:100]-Data_prism$loghind[1:100])^2))

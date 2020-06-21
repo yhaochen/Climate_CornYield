@@ -101,10 +101,10 @@ boxhist2<-function(vector_data1,vector_data2,variable_name,variable_name1,variab
   boxplot(vector_data2, horizontal = TRUE, xaxt="n", frame=F, pch=20,ylim=c(Min,Max), main="", cex.main=2.0,col=rgb(1,0,0,0.25)) #boxplot
   points(mean(vector_data2),1,col=rgb(1,0,0,1),pch=16)
   par(mar=c(0, 5.1, 2.1, 2.1))
-  par(mar=c(4, 5.1, 0, 2.1))
-  hist(vector_data1, breaks=seq(Min,Max,(Max-Min)/40),xlim=c(Min,Max),xlab = variable_name,ylab = "Frequency",main = "",cex.lab=1.5,cex.axis=1.5,col=rgb(0,0,1,0.25))
+  par(mar=c(5, 6.1, 0, 2.1))
+  hist(vector_data1, breaks=seq(Min,Max,(Max-Min)/40),xlim=c(Min,Max),xlab = variable_name,ylab = "Frequency",main = "",cex.lab=2.4,cex.axis=2.4,col=rgb(0,0,1,0.25))
   hist(vector_data2, breaks=seq(Min,Max,(Max-Min)/40),xlim=c(Min,Max),col=rgb(1,0,0,0.25),add = T)
-  legend("topright",fill=c(rgb(0,0,1,0.25),rgb(1,0,0,0.25)),legend=c(variable_name1,variable_name2),bty="n",cex=1.4)
+  legend("topleft",fill=c(rgb(0,0,1,0.25),rgb(1,0,0,0.25)),legend=c(variable_name1,variable_name2),bty="n",cex=2.3)
 }
 
 cdf2<-function(vector_data1,vector_data2,variable_name,variable_name1,variable_name2){
