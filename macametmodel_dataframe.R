@@ -58,12 +58,6 @@ modelnames<-c("MIROC5","MRI-CGCM3","IPSL-CM5B-LR","IPSL-CM5A-LR",
               "HadGEM2-ES365","GFDL-ESM2M","GFDL-ESM2G","CSIRO-Mk3-6-0","bcc-csm1-1",
               "MIROC-ESM", "IPSL-CM5A-MR", "CNRM-CM5","BNU-ESM")
 
-#Metdata observation
-load("Metdata_temp/Data_Metobs")
-Data$StateANSI<-factor(Data$StateANSI)
-Data$year=Data$year+1978
-Data$year<-factor(Data$year)
-
 #with each climate projection, save the hind/proj yield data of 64 structures
 for (q in 1:length(modelnames)){
   foldername<-paste("Data/MACAv2-METDATA/",modelnames[q],"_proj/",sep="")
