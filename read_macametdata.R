@@ -1,4 +1,4 @@
-#fifth read projection daily data: 2066-2099
+#read projection daily macamet data: 2006-2099, save Tmax/min, Pr, RHmax/min
 rm(list = ls())
 graphics.off()
 library(sp)

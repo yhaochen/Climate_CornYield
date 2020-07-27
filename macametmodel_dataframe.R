@@ -1,4 +1,4 @@
-#Read each climate projection
+#Read each climate projection and create the dataframe that includes growing season data
 rm(list = ls())
 graphics.off()
 library(sp)

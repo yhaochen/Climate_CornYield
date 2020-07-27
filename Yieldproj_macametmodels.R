@@ -1,5 +1,5 @@
-#This file calculates the yield projections in different model structures/climate projections
-#Also include the precalibration window.
+#This file reads the yield projections in different model structures/climate projections and makes plots
+
 
 
 #Read each climate projection
