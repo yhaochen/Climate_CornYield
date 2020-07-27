@@ -611,7 +611,7 @@ trendindex<-(as.integer(Data$StateANSI)-1)*Year+as.integer(Data$year)  #find the
 trendindex_proj<-(as.integer(Data_proj$StateANSI)-1)*93+as.integer(Data_proj$year)
 Data$logYield<-log(Data$yield)-Yield_stateyear[trendindex]   #this anomaly is: yield - the quadratic trend
 
-model<-lm(logYield~GDD_GS+EDD_GS+poly(Pr_GS,2),data=Data, weights=Data$area) #year and fips are fixed effects
+model<-lm(logYield~GDD_GS+EDD_GS+poly(Pr_GS,2),data=Data, weights=Data$area)
 hind<-predict(model,Data)
 SRhind<-exp(hind+Yield_stateyear[trendindex])-exp(Yield_stateyear[trendindex]) #the anomaly hind
 proj<-predict(model,Data_proj)

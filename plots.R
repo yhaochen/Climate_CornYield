@@ -118,3 +118,48 @@ cdf2<-function(vector_data1,vector_data2,variable_name,variable_name1,variable_n
   curve(e2(x),add=TRUE,lwd=2,col="red")
   legend("topleft",fill=c("blue","red"),legend=c(variable_name1,variable_name2),bty="n",cex=1.4)
 }
+
+boxdens2<-function(vector_data1,vector_data2,variable_name,variable_name1,variable_name2){ #historgram + boxplots
+  layout(mat = matrix(c(1,2,3),3,1, byrow=TRUE),  height = c(1,1,7))
+  vector_data1<-vector_data1[!is.na(vector_data1)]
+  vector_data2<-vector_data2[!is.na(vector_data2)]
+  Max = max(max(vector_data1, na.rm = TRUE),max(vector_data2,na.rm=TRUE), na.rm = TRUE)
+  Min = min(min(vector_data1, na.rm = TRUE),min(vector_data2,na.rm=TRUE), na.rm = TRUE)
+  par(mar=c(0, 5.1, 2.1, 2.1))
+  boxplot(vector_data1, horizontal = TRUE, xaxt="n", frame=F, pch=20,ylim=c(Min,Max), main="", cex.main=2.0,col=rgb(0,1,0,0.25)) #boxplot
+  points(mean(vector_data1),1,col=rgb(0,1,0,1),pch=16)
+  par(mar=c(0, 5.1, 2.1, 2.1))
+  boxplot(vector_data2, horizontal = TRUE, xaxt="n", frame=F, pch=20,ylim=c(Min,Max), main="", cex.main=2.0,col=rgb(0,0,1,0.25)) #boxplot
+  points(mean(vector_data2),1,col=rgb(0,0.2,1,1),pch=16)
+  par(mar=c(4, 5.1, 0, 2.1))
+  plot(0,0,xlim = c(Min,Max),ylim = c(0,0.05),xlab="Yield anomaly (bush/acre)",ylab="Probability density",type = "n",cex.axis=2,cex.lab=2)
+  
+  lines(density(vector_data1,na.rm=TRUE),col=rgb(0,1,0))#, breaks=seq(Min,Max,(Max-Min)/40),xlim=c(Min,Max),xlab = variable_name,ylab = "Frequency",main = "",cex.lab=1.5,cex.axis=1.5,col=rgb(0,1,0,0.25))
+  lines(density(vector_data2,na.rm=TRUE),col=rgb(0,0,1))# breaks=seq(Min,Max,(Max-Min)/40),xlim=c(Min,Max),col=rgb(0,0,1,0.25),add = T)
+  legend("topleft",fill=c(rgb(0,1,0),rgb(0,0,1)),legend=c(variable_name1,variable_name2),bty="n",cex=1.4)
+}
+
+boxdens3<-function(vector_data1,vector_data2,vector_data3,variable_name,variable_name1,variable_name2,variable_name3){ #historgram + boxplots
+  layout(mat = matrix(c(1,2,3,4),4,1, byrow=TRUE),  height = c(1,1,1,7))
+  vector_data1<-vector_data1[!is.na(vector_data1)]
+  vector_data2<-vector_data2[!is.na(vector_data2)]
+  vector_data3<-vector_data3[!is.na(vector_data3)]
+  Max = max(max(vector_data1, na.rm = TRUE),max(vector_data2,na.rm=TRUE),max(vector_data3,na.rm=TRUE), na.rm = TRUE)
+  Min = min(min(vector_data1, na.rm = TRUE),min(vector_data2,na.rm=TRUE),min(vector_data3,na.rm=TRUE), na.rm = TRUE)
+  par(mar=c(0, 5.1, 2.1, 2.1))
+  boxplot(vector_data1, horizontal = TRUE, xaxt="n", frame=F, pch=20,ylim=c(Min,Max), main="", cex.main=2.0,col=rgb(0,1,0,0.25)) #boxplot
+  points(mean(vector_data1),1,col=rgb(0,1,0,1),pch=16)
+  par(mar=c(0, 5.1, 2.1, 2.1))
+  boxplot(vector_data2, horizontal = TRUE, xaxt="n", frame=F, pch=20,ylim=c(Min,Max), main="", cex.main=2.0,col=rgb(0,0,1,0.25)) #boxplot
+  points(mean(vector_data2),1,col=rgb(0,0.2,1,1),pch=16)
+  par(mar=c(0, 5.1, 2.1, 2.1))
+  boxplot(vector_data3, horizontal = TRUE, xaxt="n", frame=F, pch=20,ylim=c(Min,Max), main="", cex.main=2.0,col=rgb(1,0,0,0.25)) #boxplot
+  points(mean(vector_data3),1,col=rgb(1,0,0,1),pch=16)
+  par(mar=c(4, 5.1, 0, 2.1))
+  plot(0,0,xlim = c(Min,Max),ylim = c(0,0.05),xlab="Yield anomaly (bush/acre)",ylab="Probability density",type = "n",cex.axis=2,cex.lab=2)
+  
+  lines(density(vector_data1,na.rm=TRUE),col=rgb(0,1,0))#, breaks=seq(Min,Max,(Max-Min)/40),xlim=c(Min,Max),xlab = variable_name,ylab = "Frequency",main = "",cex.lab=1.5,cex.axis=1.5,col=rgb(0,1,0,0.25))
+  lines(density(vector_data2,na.rm=TRUE),col=rgb(0,0,1))# breaks=seq(Min,Max,(Max-Min)/40),xlim=c(Min,Max),col=rgb(0,0,1,0.25),add = T)
+  lines(density(vector_data3,na.rm=TRUE),col=rgb(1,0,0))# breaks=seq(Min,Max,(Max-Min)/40),col=rgb(1,0,0,0.15),add = T)
+  legend("topleft",fill=c(rgb(0,1,0),rgb(0,0,1),rgb(1,0,0)),legend=c(variable_name1,variable_name2,variable_name3),bty="n",cex=1.4)
+}
