@@ -14,10 +14,20 @@ library(binaryLogic)
 source("latlong2county.R")
 source("GDDEDD.R")
 #Determine which county each grid is in 
-Dataname<-"MIROC5"  #"MRI-CGCM3" 
+Dataname<-"MIROC-ESM-CHEM"
+  # "MIROC5"  #"MRI-CGCM3" 
 #  MIROC-ESM IPSL-CM5B-LR IPSL-CM5A-MR IPSL-CM5A-LR
 #inmcm4 HadGEM2-ES365 GFDL-ESM2G CSIRO-Mk3-6-0 CNRM-CM5 
 #CanESM2 BNU-ESM bcc-csm1-1 
+
+#modelnames<-c("MIROC5","MRI-CGCM3","IPSL-CM5B-LR","IPSL-CM5A-LR", 
+#              "HadGEM2-ES365","GFDL-ESM2M","GFDL-ESM2G","CSIRO-Mk3-6-0","bcc-csm1-1",
+#              "MIROC-ESM", "IPSL-CM5A-MR", "CNRM-CM5","BNU-ESM",
+#               "MIROC-ESM-CHEM", "inmcm4", "HadGEM2-CC365", "CanESM2", "bcc-csm1-1-m")
+
+#NorESM1-M no rhmax,rhmin
+#CCSM4: r6
+
 file<-nc_open(paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmax_",
                     Dataname,"_r1i1p1_rcp85_2006_2010_CONUS_daily.nc",sep=""))
 grid_lon<-as.vector(file$dim$lon$vals)
@@ -47,11 +57,11 @@ m1<-1 #used to record which columns to write in each loop
 m2<-1
 n1=1
 # 
-# dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA/",Dataname,"_proj/Tmax",sep=""),recursive = TRUE)
-# dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA/",Dataname,"_proj/Tmin",sep=""),recursive = TRUE)
-# dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA/",Dataname,"_proj/Pr",sep=""),recursive = TRUE)
-# dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA/",Dataname,"_proj/RHmax",sep=""),recursive = TRUE)
-# dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA/",Dataname,"_proj/RHmin",sep=""),recursive = TRUE)
+dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA_proj/",Dataname,"_proj",sep=""),recursive = TRUE)
+dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA_proj/",Dataname,"_proj",sep=""),recursive = TRUE)
+dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA_proj/",Dataname,"_proj",sep=""),recursive = TRUE)
+dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA_proj/",Dataname,"_proj",sep=""),recursive = TRUE)
+dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA_proj/",Dataname,"_proj",sep=""),recursive = TRUE)
 for (i in 1:94){
   if ((i%%5==1)&(years[i]<2096)){
     Tmax_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmax_",Dataname,"_r1i1p1_rcp85_"
@@ -149,11 +159,3 @@ for (i in 1:94){
 
 }
 
-
-for (n in 1:countynum){
-    write.table(tmax[n, ],paste("Data/MACAv2-METDATA/",Dataname,"_proj/Tmax/Tmax_",countytoget[n],sep = ""), sep=" ")
-    write.table(tmin[n, ],paste("Data/MACAv2-METDATA/",Dataname,"_proj/Tmin/Tmin_",countytoget[n],sep = ""), sep=" ")
-    write.table(pr[n, ],paste("Data/MACAv2-METDATA/",Dataname,"_proj/Pr/Pr_",countytoget[n],sep = ""), sep=" ")
-    write.table(rhmax[n, ],paste("Data/MACAv2-METDATA/",Dataname,"_proj/RHmax/RHmax_",countytoget[n],sep = ""), sep=" ")
-    write.table(rhmin[n, ],paste("Data/MACAv2-METDATA/",Dataname,"_proj/RHmin/RHmin_",countytoget[n],sep = ""), sep=" ")
-    }

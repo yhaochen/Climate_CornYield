@@ -14,9 +14,7 @@ parasample<-function(model,n,sig){
   lhs<-randomLHS(n,paranum)
   for (i in 1:n){
     for (j in 1:paranum){
-      lhs[i,j]<-lhs[i,j]*2*(0.5-pnorm(paramean[j]-sig*parastd[j],mean=paramean[j],sd = parastd[j]))+
-                pnorm(paramean[j]-sig*parastd[j],mean=paramean[j],sd = parastd[j])
-      lhs[i,j]<-qnorm(lhs[i,j],mean = paramean[j],sd = parastd[j])
+      lhs[i,j]<-paramean[j]-sig*parastd[j]+lhs[i,j]*2*sig*parastd[j]
     }
   }
   lhs

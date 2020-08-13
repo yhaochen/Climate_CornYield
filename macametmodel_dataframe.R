@@ -53,13 +53,14 @@ su <- function(arr, n){  #cumulative sum
 }
 
 
-#13 models
+#18 models
 modelnames<-c("MIROC5","MRI-CGCM3","IPSL-CM5B-LR","IPSL-CM5A-LR", 
               "HadGEM2-ES365","GFDL-ESM2M","GFDL-ESM2G","CSIRO-Mk3-6-0","bcc-csm1-1",
-              "MIROC-ESM", "IPSL-CM5A-MR", "CNRM-CM5","BNU-ESM")
+              "MIROC-ESM", "IPSL-CM5A-MR", "CNRM-CM5","BNU-ESM",
+              "MIROC-ESM-CHEM", "inmcm4", "HadGEM2-CC365", "CanESM2", "bcc-csm1-1-m")
 
 #with each climate projection, save the hind/proj yield data of 64 structures
-for (q in 1:length(modelnames)){
+for (q in 14:length(modelnames)){
   foldername<-paste("Data/MACAv2-METDATA/",modelnames[q],"_proj/",sep="")
   load(paste(foldername,"tmax",sep=""))
   load(paste(foldername,"tmin",sep=""))

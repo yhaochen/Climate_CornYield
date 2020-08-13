@@ -57,14 +57,37 @@ su <- function(arr, n){  #cumulative sum
   res
 }
 
+colMax <- function(data) {
+  apply(data, 2, max)
+}
+colMin <- function(data) {
+  apply(data, 2, min)
+}
+rowMax <- function(data) {
+  apply(data, 1, max)
+}
+rowMin <- function(data) {
+  apply(data, 1, min)
+}
 
-#13 models
+#ser function is similar to seq(from,by,length.out) except "from" can be a vector
+ser <- function(data,by,times){ 
+  totlength<-length(data)*times
+  output<-rep(NA,totlength)
+  for (i in 1:times){
+    cols<-c( (length(data)*(i-1)+1) : (length(data)*i) )
+    output[cols]<-data+by*(i-1)
+  }
+  output
+}
+
+#18 models
 modelnames<-c("MIROC5","MRI-CGCM3","IPSL-CM5B-LR","IPSL-CM5A-LR", 
               "HadGEM2-ES365","GFDL-ESM2M","GFDL-ESM2G","CSIRO-Mk3-6-0","bcc-csm1-1",
-              "MIROC-ESM", "IPSL-CM5A-MR", "CNRM-CM5","BNU-ESM")
-
+              "MIROC-ESM", "IPSL-CM5A-MR", "CNRM-CM5","BNU-ESM",
+              "MIROC-ESM-CHEM", "inmcm4", "HadGEM2-CC365", "CanESM2", "bcc-csm1-1-m")
 #Metdata observation
-load("Metdata_temp/Data_Metobs")
+load("Metdata_temp/Metdataframe/Data_Metobs")
 Data$StateANSI<-factor(Data$StateANSI)
 Data$year=Data$year+1978
 Data$year<-factor(Data$year)
@@ -79,10 +102,15 @@ load("Metdata_temp/hind_bestfit")
 load("Metdata_temp/proj_bestfit")
 load("Metdata_temp/hind_parasample")
 load("Metdata_temp/proj_parasample")
-load("Metdata_temp/windowyield_low")
-load("Metdata_temp/windowyield_up")
+#load("Metdata_temp/proj_linearshifted_bestfit_2020_2049")
+#load("Metdata_temp/proj_linearshifted_parasample_2020_2049")
+load("Metdata_temp/proj_linearshifted_bestfit_2070_2099")
+load("Metdata_temp/proj_linearshifted_parasample_2070_2099")
 parasamplenum<-dim(proj_parasample)[3]
 
+#Find the variance of yield distribution in these years:
+selectedyears<-c(90:94) 
+#Also find the upper and lower bound in each year under different choices
 #all uncertainties considered
 annualhistmin<-rep(NA,32)
 annualhistmax<-rep(NA,32)
@@ -93,35 +121,73 @@ for (i in 1:32){
 annualprojmin<-rep(NA,94)
 annualprojmax<-rep(NA,94)
 for (i in 1:94){
-  colindx<-seq(from = i, by=94, length.out = 13)
+  colindx<-seq(from = i, by=94, length.out = 18)
   annualprojmin[i]<-min(proj_parasample[ ,colindx, ],na.rm=TRUE)
   annualprojmax[i]<-max(proj_parasample[ ,colindx, ],na.rm=TRUE)
 }
+selectedcols<-ser(selectedyears,94,18)
+vect_all<-as.vector(proj_parasample[ ,selectedcols, ])
+var(vect_all,na.rm = TRUE)
 
 #projection: structure + climate 
 annualprojmin_stru_clim<-rep(NA,94)
 annualprojmax_stru_clim<-rep(NA,94)
 for (i in 1:94){
-  colindx<-seq(from = i, by=94, length.out = 13)
+  colindx<-seq(from = i, by=94, length.out = 18)
   annualprojmin_stru_clim[i]<-min(proj_fit[ ,colindx],na.rm=TRUE)
   annualprojmax_stru_clim[i]<-max(proj_fit[ ,colindx],na.rm=TRUE)
 }
+vect_stru_clim<-as.vector(proj_fit[ ,selectedcols])
+var(vect_stru_clim,na.rm = TRUE)
 #projection: parameter + climate
 annualprojmin_para_clim<-rep(NA,94)
 annualprojmax_para_clim<-rep(NA,94)
 for (i in 1:94){
-  colindx<-seq(from = i, by=94, length.out = 13)
+  colindx<-seq(from = i, by=94, length.out = 18)
   annualprojmin_para_clim[i]<-min(proj_parasample[63,colindx, ],na.rm=TRUE)
   annualprojmax_para_clim[i]<-max(proj_parasample[63,colindx, ],na.rm=TRUE)
 }
+vect_para_clim<-as.vector(proj_parasample[63,selectedcols, ])
+var(vect_para_clim,na.rm=TRUE)
+#projection: structure + parameter
+annualprojmin_para_stru<-rep(NA,30)
+annualprojmax_para_stru<-rep(NA,30)
+for (i in 1:30){
+  annualprojmin_para_stru[i]<-min(proj_linearshifted_parasample[ ,i, ],na.rm=TRUE)
+  annualprojmax_para_stru[i]<-max(proj_linearshifted_parasample[ ,i, ],na.rm=TRUE)
+}
+vect_para_stru<- as.vector(proj_linearshifted_parasample[  ,30, ])
+var(vect_para_stru,na.rm=TRUE)
+
 #projection: only climate (best structure performance: 64th)
 annualprojmax_clim<-rep(NA,94)
 annualprojmin_clim<-rep(NA,94)
 for (i in 1:94){
-  colindx<-seq(from = i, by=94, length.out = 13)
+  colindx<-seq(from = i, by=94, length.out = 18)
   annualprojmin_clim[i]<-min(proj_fit[64,colindx],na.rm=TRUE)
   annualprojmax_clim[i]<-max(proj_fit[64,colindx],na.rm=TRUE)
 }
+vect_clim<-proj_fit[64,selectedcols]
+var(vect_clim,na.rm=TRUE)
+#projection: only structure (best estimate of each structure under linear shifted climate)
+annualprojmin_stru<-rowMin(proj_linearshifted_fit)
+annualprojmax_stru<-rowMax(proj_linearshifted_fit)
+vect_stru<-as.vector(proj_linearshifted_fit[ ,30])
+var(vect_stru,na.rm=TRUE)
+#projection: only parameter (best structure under linear shifted climate)
+annualprojmin_para<-rep(NA,30)
+annualprojmax_para<-rep(NA,30)
+for (i in 1:30){
+  annualprojmin_para[i]<-min(proj_linearshifted_parasample[63,i, ],na.rm=TRUE)
+  annualprojmax_para[i]<-max(proj_linearshifted_parasample[63,i, ],na.rm=TRUE)
+}
+vect_para<-as.vector(proj_linearshifted_parasample[63,30, ])
+var(vect_para,na.rm=TRUE)
+#projection: none (best structure's point estimates in each year under linear shifted climate)
+annualproj_none<-proj_linearshifted_fit[64, ]
+var(proj_linearshifted_fit[64,30])
+
+
 #All
 par(mar=c(4,5.1,1.6,2.1))
 plot(0,0,xlim = c(1981,2099),ylim = c(-100,30),xlab="Year",ylab="Yield anomaly (bush/acre)",type = "n",cex.axis=2,cex.lab=2)
@@ -234,6 +300,37 @@ boxdens3(vect1,vect2,vect3,"Yield anomaly (bush/acre)", "Parametric + climate un
 points(vect1,rep(0,13),pch=20,col="red")
 legend(-100,0.045,legend = "Best estimates from 13 climate projections",pch=20,col="red",bty="n",cex=1.4)
 
+
+#all distributions in 2099:
+par(mar=c(4.5,5.1,1.6,2.1))
+plot(0,0,xlim = c(-100,20),ylim = c(-0.035,0.07),xlab="Yield anomaly (bush/acre)",ylab="Density",type = "n",cex.axis=2,cex.lab=2)
+points(proj_linearshifted_fit[64,38],0,pch=8)
+lines(density(vect_para,na.rm=TRUE),col=rgb(1,0,0),lwd=2)
+lines(density(vect_stru,na.rm=TRUE),col=rgb(0,1,0),lwd=2)
+lines(density(vect_clim,na.rm=TRUE),col=rgb(0,0,1),lwd=2)
+lines(density(vect_para_stru,na.rm=TRUE),col=rgb(1,0.75,0),lwd=2,lty=2)
+lines(density(vect_stru_clim,na.rm=TRUE),col=rgb(0,1,1),lwd=2,lty=2)
+lines(density(vect_para_clim,na.rm=TRUE),col=rgb(1,0,1),lwd=2,lty=2)
+lines(density(vect_all,na.rm=TRUE),col="black",lwd=3)
+boxplot(vect_para, horizontal = TRUE, xaxt="n",col=rgb(1,0,0), 
+        frame=F, pch=20,ylim=c(-100,20), main="", add=TRUE,at=-0.005,boxwex=0.003) 
+boxplot(vect_stru, horizontal = TRUE, xaxt="n",col=rgb(0,1,0), 
+        frame=F, pch=20,ylim=c(-100,20), main="", add=TRUE,at=-0.01,boxwex=0.003) 
+boxplot(vect_clim, horizontal = TRUE, xaxt="n",col=rgb(0,0,1), 
+        frame=F, pch=20,ylim=c(-100,20), main="", add=TRUE,at=-0.015,boxwex=0.003) 
+boxplot(vect_para_stru, horizontal = TRUE, xaxt="n",col=rgb(1,0.75,0), 
+        frame=F, pch=20,ylim=c(-100,20), main="", add=TRUE,at=-0.02,boxwex=0.003) 
+boxplot(vect_stru_clim, horizontal = TRUE, xaxt="n",col=rgb(0,1,1), 
+        frame=F, pch=20,ylim=c(-100,20), main="", add=TRUE,at=-0.025,boxwex=0.003) 
+boxplot(vect_para_clim, horizontal = TRUE, xaxt="n",col=rgb(1,0,1), 
+        frame=F, pch=20,ylim=c(-100,20), main="", add=TRUE,at=-0.03,boxwex=0.003) 
+boxplot(vect_all, horizontal = TRUE, xaxt="n",col="grey", 
+        frame=F, pch=20,ylim=c(-100,20), main="", add=TRUE,at=-0.035,boxwex=0.003) 
+
+legend(-103,0.08,col=c("black","red","blue","green"),pch=c(8,NA,NA,NA),lty=c(NA,1,1,1),legend=c("Point estimate",
+        "Parametric","Climatic","Structural"),bty="n",cex=1.5)
+legend(-70,0.08,col=c(rgb(1,0.78,0),rgb(0,1,1),rgb(1,0,1),"black"),lty=c(2,2,2,1),legend=c("Parametric + structural ",
+        "Structural + climatic","Parametric + climatic","All"),bty="n",cex=1.5)
 # #2D paremeter distributions
 parasamplenum<-10000
 i<-16
@@ -288,16 +385,4 @@ for (i in 1:7){
 
 
 
-colMax <- function(data) {
-  apply(data, 2, max)
-}
-colMin <- function(data) {
-  apply(data, 2, min)
-}
-rowMax <- function(data) {
-  apply(data, 1, max)
-}
-rowMin <- function(data) {
-  apply(data, 1, min)
-}
 
