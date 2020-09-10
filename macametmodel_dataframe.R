@@ -12,7 +12,7 @@ library(housingData)
 library(binaryLogic)
 source("latlong2county.R")
 source("GDDEDD.R")
-#Determine which county each grid is in s
+#Determine which county each grid is in
 file<-nc_open("/gpfs/group/kzk10/default/public/METDATA/raw/tmmx_1980.nc")
 grid_lon<-as.vector(file$dim$lon$vals)
 grid_lat<-as.vector(file$dim$lat$vals)
@@ -43,15 +43,6 @@ ma <- function(arr, n){  #moving avg function
   }
   res
 }
-
-su <- function(arr, n){  #cumulative sum
-  res = rep(NA,length(arr)-n+1)
-  for(i in n:length(arr)){
-    res[i] = sum(arr[n:i])
-  }
-  res
-}
-
 
 #18 models
 modelnames<-c("MIROC5","MRI-CGCM3","IPSL-CM5B-LR","IPSL-CM5A-LR", 
