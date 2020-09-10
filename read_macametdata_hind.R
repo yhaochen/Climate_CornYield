@@ -1,4 +1,4 @@
-#read projection daily macamet data: 2006-2099, save Tmax/min, Pr, RHmax/min
+#read hindcast daily macamet data: 2006-2099, save Tmax/min, Pr, RHmax/min
 rm(list = ls())
 graphics.off()
 library(sp)
@@ -16,10 +16,7 @@ source("GDDEDD.R")
 modelnames<-c("MIROC5","MRI-CGCM3","IPSL-CM5B-LR","IPSL-CM5A-LR", 
               "HadGEM2-ES365","GFDL-ESM2M","GFDL-ESM2G","CSIRO-Mk3-6-0","bcc-csm1-1",
               "MIROC-ESM", "IPSL-CM5A-MR", "CNRM-CM5","BNU-ESM",
-               "MIROC-ESM-CHEM", "inmcm4", "HadGEM2-CC365", "CanESM2", "bcc-csm1-1-m")
-
-q=1
-
+              "MIROC-ESM-CHEM", "inmcm4", "HadGEM2-CC365", "CanESM2", "bcc-csm1-1-m")
 
 file<-nc_open(paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmax_MIROC5_r1i1p1_historical_1980_1984_CONUS_daily.nc",sep=""))
 grid_lon<-as.vector(file$dim$lon$vals)
@@ -30,7 +27,7 @@ grid<-data.frame(x = rep(grid_lon-360,each=dim_lat), y = rep(rev(grid_lat),dim_l
 countyname<-latlong2county(grid)
 countyname<-matrix(countyname,nrow=dim_lat,ncol=dim_lon)
 
-#INPUT 1: which counties' (grids') data are needed?
+#which counties' (grids') data are needed?
 countys <- map('county', fill=TRUE, col="transparent", plot=FALSE)
 IDs <- sapply(strsplit(countys$names, ":"), function(x) x[1])
 countys_sp <- map2SpatialPolygons(countys, IDs=IDs,proj4string=CRS("+proj=longlat +datum=WGS84"))
@@ -44,11 +41,9 @@ pr<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
 rhmax<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
 rhmin<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
 
-
-  m1=1
-  m2=1
-
-  
+m1=1
+m2=1
+# read orgininal data
 for (i in 1:26){
   if ((i%%5==1)&(years[i]<2005)){
     Tmax_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmax_",modelnames[q],"_r1i1p1_historical_"
@@ -96,7 +91,7 @@ for (i in 1:26){
   }
   
   m2<-m1+k-1
-  
+  #subset the grids to the east of 100W
   Tmax<-ncvar_get(mettmax,varid = "air_temperature",start = c(596,1,n1),count = c(dim_lon-595,dim_lat,k))
   Tmin<-ncvar_get(mettmin,varid = "air_temperature",start = c(596,1,n1),count = c(dim_lon-595,dim_lat,k))
   Pr<-ncvar_get(metpr,varid = "precipitation",start = c(596,1,n1),count = c(dim_lon-595,dim_lat,k))
@@ -104,6 +99,7 @@ for (i in 1:26){
   RHmin<-ncvar_get(metrhmin,varid = "relative_humidity",start = c(596,1,n1),count = c(dim_lon-595,dim_lat,k))
   
   n1<-n1+k
+  #for each county find the grids within this county and take average
   for (n in 1:countynum){
     gridstoget<-which(countyname==countytoget[n],arr.ind = T)
     gridnum<-dim(gridstoget)[1]

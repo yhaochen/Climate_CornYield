@@ -17,13 +17,7 @@ source("GDDEDD.R")
 
 #first read daily Tmax, Tmin, RHmax, RHmin, Pr
 
-#yield data: 1981-2012 32yrs
 #Metdata obs: 1979-2016
-#MacaMet proj: 2066-2099
-#
-#
-#
-#
 #
 #Determine which county each grid is in 
 file<-nc_open("/gpfs/group/kzk10/default/public/METDATA/raw/tmmx_1980.nc")
@@ -115,30 +109,22 @@ for (i in 1:38){
   print(i)
 }
 
-save(pr,file="Metdata_temp/Metpr_temp")
-save(tmax,file="Metdata_temp/Mettmax_temp")
-save(tmin,file="Metdata_temp/Mettmin_temp")
-save(rhmax,file="Metdata_temp/Metrhmax_temp")
-save(rhmin,file="Metdata_temp/Metrhmin_temp")
+save(pr,file="Metdata/Metdataframe/Metpr")
+save(tmax,file="Metdata/Metdataframe/Mettmax")
+save(tmin,file="Metdata/Metdataframe/Mettmin")
+save(rhmax,file="Metdata/Metdataframe/Metrhmax")
+save(rhmin,file="Metdata/Metdataframe/Metrhmin")
 
 
-
-for (n in 1:countynum){
-  write.table(tmax[n, ],paste("Data/MET/dailyTmax/Tmax_",countytoget[n],sep = ""), sep=" ")
-  write.table(tmin[n, ],paste("Data/MET/dailyTmin/Tmin_",countytoget[n],sep = ""), sep=" ")
-  write.table(pr[n, ],paste("Data/MET/dailyPr/Pr_",countytoget[n],sep = ""), sep=" ")
-  write.table(rhmax[n, ],paste("Data/MET/dailyRHmax/RHmax_MET_",countytoget[n],sep = ""), sep=" ")
-  write.table(rhmin[n, ],paste("Data/MET/dailyRHmin/RHmin_MET_",countytoget[n],sep = ""), sep=" ")
-}
 
 
 #second calculate VPD, GDD, EDD
 
-load("Metdata_temp/Metpr")
-load("Metdata_temp/Mettmax")
-load("Metdata_temp/Mettmin")
-load("Metdata_temp/Metrhmax")
-load("Metdata_temp/Metrhmin")
+load("Metdata/Metdataframe/Metpr")
+load("Metdata/Metdataframe/Mettmax")
+load("Metdata/Metdataframe/Mettmin")
+load("Metdata/Metdataframe/Metrhmax")
+load("Metdata/Metdataframe/Metrhmin")
 
 RHmean<-(rhmax+rhmin)/2
 Tmean<-(tmax+tmin)/2
@@ -153,17 +139,13 @@ for (i in 1: countynum){
     EDD[i,j]<-GDDEDD(tmax[i,j],tmin[i,j])[2]
   }
 }
-for (n in 1:countynum){
-  write.table(VPD[n, ],paste("Data/MET/dailyVPD/VPD_",countytoget[n],sep = ""), sep=" ")
-  write.table(GDD[n, ],paste("Data/MET/dailyGDD/GDD_",countytoget[n],sep = ""), sep=" ")
-  write.table(EDD[n, ],paste("Data/MET/dailyEDD/EDD_",countytoget[n],sep = ""), sep=" ")
-}
-save(VPD,file="Metdata_temp/MetVPD")
-save(GDD,file="Metdata_temp/MetGDD")
-save(EDD,file="Metdata_temp/MetEDD")
-load("Metdata_temp/MetVPD")
-load("Metdata_temp/MetGDD")
-load("Metdata_temp/MetEDD")
+
+save(VPD,file="Metdata/Metdataframe/MetVPD")
+save(GDD,file="Metdata/Metdataframe/MetGDD")
+save(EDD,file="Metdata/Metdataframe/MetEDD")
+load("Metdata/Metdataframe/MetVPD")
+load("Metdata/Metdataframe/MetGDD")
+load("Metdata/Metdataframe/MetEDD")
 
 #third find growing season and three growing phases
 ma <- function(arr, n){  #moving avg function
@@ -205,14 +187,14 @@ for (i in 1:countynum){
     m1=m2+1
   }
 }
-save(GS_start,file="Metdata_temp/MetGS_start")
-save(GS_end,file="Metdata_temp/MetGS_end")
+save(GS_start,file="Metdata/Metdataframe/MetGS_start")
+save(GS_end,file="Metdata/Metdataframe/MetGS_end")
 
 
 #fourth combine to a dataframe
 #dataframe should be countynum*yearnum
-load("Metdata_temp/MetGS_start")
-load("Metdata_temp/MetGS_end")
+load("Metdata/Metdataframe/MetGS_start")
+load("Metdata/Metdataframe/MetGS_end")
 substrRight <- function(x, n){
   substr(x, nchar(x)-n+1, nchar(x))
 }
@@ -357,25 +339,37 @@ for (i in 1:countynum){
       yieldtoget[j]<-W$Value[yearindex[ind]]
     }
   }
-  if (!all(is.na(yieldtoget))){
-    tempyear<-c(1979:2016)
-    timetrend<-lm(yield~year+year^2,data=data.frame(yield=yieldtoget[which(!is.na(yieldtoget))]
-                                                    ,year=tempyear[which(!is.na(yieldtoget))]))
-    predictedmeanyield<-rep(NA,38)
-    predictedmeanyield[which(!is.na(yieldtoget))]<-predict(timetrend,data=tempyear)
-    yield_anomaly[((i-1)*38+1):(i*38)]<-yieldtoget-predictedmeanyield #anomaly for each state
-  } else{
-    yield_anomaly[((i-1)*38+1):(i*38)]<-yieldtoget
-  }
   yield[((i-1)*38+1):(i*38)]<-yieldtoget
 }
 
 Data<-data.frame(StateANSI=rep(StateANSI,each=38),countyANSI=rep(CountyANSI,each=38),fips=rep(ANSI,each=38),
                  year=rep(c(1:38),countynum),Tmax_GS=Tmax_GS,Tmin_GS=Tmin_GS, GDD_GS=GDD_GS,
-                 EDD_GS=EDD_GS,VPD_GS=VPD_GS,
-                 Pr_GS=Pr_GS,yield=yield,GS_length=GS_length,
-                 yield_anomaly=yield_anomaly,area=area)
-Data<-Data[complete.cases(Data), ]
-save(Data,file = "Metdata_temp/Data_Metobs")
+                 EDD_GS=EDD_GS,VPD_GS=VPD_GS,Pr_GS=Pr_GS,yield=yield,GS_length=GS_length,area=area)
+Data<-Data[complete.cases(Data), ] #Yield data are 1981-2012
+#calculate yield anomaly based on fixed effects
+Data$StateANSI<-factor(Data$StateANSI)
+Data$year=Data$year+1978
+Data$year<-factor(Data$year)
+model<-lm(yield~Tmax_GS+Tmin_GS+GDD_GS+EDD_GS+VPD_GS+Pr_GS+fips+year,data=Data)
+Coef<-summary(model)$coefficients
+Data$yield_anomaly<-rep(NA,dim(Data)[1])
+for (i in 1:dim(Data)[1]){
+  row_county<-which(row.names(Coef)==paste("fips",Data$fips[i],sep=""))
+  row_year<-which(row.names(Coef)==paste("year",Data$year[i],sep=""))
+  if (length(row_county)==0){
+    countyeffect<-0
+  } else{
+    countyeffect<-Coef[row_county,1]
+  }
+  if (length(row_year)==0){
+    yeareffect<-0
+  } else{
+    yeareffect<-Coef[row_year,1]
+  }
+  Data$yield_anomaly[i]<-Data$yield[i]-countyeffect-yeareffect
+}
+model<-lm(yield_anomaly~Tmax_GS+Tmin_GS+GDD_GS+EDD_GS+VPD_GS+Pr_GS,data=Data)
+
+save(Data,file = "Metdata/Data_Metobs")
 
 
