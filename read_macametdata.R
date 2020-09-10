@@ -21,7 +21,7 @@ modelnames<-c("MIROC5","MRI-CGCM3","IPSL-CM5B-LR","IPSL-CM5A-LR",
 
 
 file<-nc_open(paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmax_",
-                    Dataname,"_r1i1p1_rcp85_2006_2010_CONUS_daily.nc",sep=""))
+                    MIROC5,"_r1i1p1_rcp85_2006_2010_CONUS_daily.nc",sep=""))
 grid_lon<-as.vector(file$dim$lon$vals)
 grid_lat<-as.vector(file$dim$lat$vals)
 dim_lon<-length(grid_lon)
@@ -38,6 +38,8 @@ countyNames <- sapply(countys_sp@polygons, function(x) x@ID)
 countytoget<-countyNames[c(1:67,83:157,288:290,359:517,562:854,960:1143,1160:1183,1198:1564,1742:1762,1796:1957,2011:2098,2212:2278,2284:2329,2396:2490,2788:2887,2927:3053)]#PA,NY,NJ,MD,DE,DC,NC,VA,SC,WV,OH,MI,GA,KY,IN,IL,AL,TN,WI,MS,MN,MO,LA,AR,IA
 countynum<-length(countytoget)
 years<-c(2006:2099)
+
+for (1 in 1:18){
 tmax<-matrix(NA,nrow=countynum,ncol=71*365+23*366)
 tmin<-matrix(NA,nrow=countynum,ncol=71*365+23*366)
 pr<-matrix(NA,nrow=countynum,ncol=71*365+23*366)
@@ -49,23 +51,20 @@ m1<-1 #used to record which columns to write in each loop
 m2<-1
 n1=1
 
-dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA_proj/",Dataname,"_proj",sep=""),recursive = TRUE)
-dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA_proj/",Dataname,"_proj",sep=""),recursive = TRUE)
-dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA_proj/",Dataname,"_proj",sep=""),recursive = TRUE)
-dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA_proj/",Dataname,"_proj",sep=""),recursive = TRUE)
-dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA_proj/",Dataname,"_proj",sep=""),recursive = TRUE)
+dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA_proj/",modelnames[q],"_proj",sep=""),recursive = TRUE)
+
 #read original data
 for (i in 1:94){
   if ((i%%5==1)&(years[i]<2096)){
-    Tmax_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmax_",Dataname,"_r1i1p1_rcp85_"
+    Tmax_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmax_",modelnames[q],"_r1i1p1_rcp85_"
                      ,years[i],"_",years[i]+4,"_CONUS_daily.nc",sep="")
-    Tmin_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmin_",Dataname,"_r1i1p1_rcp85_"
+    Tmin_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmin_",modelnames[q],"_r1i1p1_rcp85_"
                      ,years[i],"_",years[i]+4,"_CONUS_daily.nc",sep="")
-    Pr_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_pr_",Dataname,"_r1i1p1_rcp85_"
+    Pr_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_pr_",modelnames[q],"_r1i1p1_rcp85_"
                    ,years[i],"_",years[i]+4,"_CONUS_daily.nc",sep="")
-    RHmax_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_rhsmax_",Dataname,"_r1i1p1_rcp85_"
+    RHmax_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_rhsmax_",modelnames[q],"_r1i1p1_rcp85_"
                       ,years[i],"_",years[i]+4,"_CONUS_daily.nc",sep="")
-    RHmin_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_rhsmin_",Dataname,"_r1i1p1_rcp85_"
+    RHmin_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_rhsmin_",modelnames[q],"_r1i1p1_rcp85_"
                       ,years[i],"_",years[i]+4,"_CONUS_daily.nc",sep="")
     
     mettmax<-nc_open(Tmax_file)
@@ -77,15 +76,15 @@ for (i in 1:94){
   }
   
   if ((i%%5==1)&(years[i]>2095)){
-    Tmax_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmax_",Dataname,"_r1i1p1_rcp85_"
+    Tmax_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmax_",modelnames[q],"_r1i1p1_rcp85_"
                      ,years[i],"_",years[i]+3,"_CONUS_daily.nc",sep="")
-    Tmin_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmin_",Dataname,"_r1i1p1_rcp85_"
+    Tmin_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmin_",modelnames[q],"_r1i1p1_rcp85_"
                      ,years[i],"_",years[i]+3,"_CONUS_daily.nc",sep="")
-    Pr_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_pr_",Dataname,"_r1i1p1_rcp85_"
+    Pr_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_pr_",modelnames[q],"_r1i1p1_rcp85_"
                    ,years[i],"_",years[i]+3,"_CONUS_daily.nc",sep="")
-    RHmax_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_rhsmax_",Dataname,"_r1i1p1_rcp85_"
+    RHmax_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_rhsmax_",modelnames[q],"_r1i1p1_rcp85_"
                       ,years[i],"_",years[i]+3,"_CONUS_daily.nc",sep="")
-    RHmin_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_rhsmin_",Dataname,"_r1i1p1_rcp85_"
+    RHmin_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_rhsmin_",modelnames[q],"_r1i1p1_rcp85_"
                       ,years[i],"_",years[i]+3,"_CONUS_daily.nc",sep="")
     
     mettmax<-nc_open(Tmax_file)
@@ -143,8 +142,9 @@ for (i in 1:94){
   }
   m1<-m2+1
 }
-save(pr,file=paste("SourceData/MACAv2-METDATA/",Dataname,"_proj/pr",sep=""))
-save(tmax,file=paste("SourceData/MACAv2-METDATA/",Dataname,"_proj/tmax",sep=""))
-save(tmin,file=paste("SourceData/MACAv2-METDATA/",Dataname,"_proj/tmin",sep=""))
-save(rhmax,file=paste("SourceData/MACAv2-METDATA/",Dataname,"_proj/rhmax",sep=""))
-save(rhmin,file=paste("SourceData/MACAv2-METDATA/",Dataname,"_proj/rhmin",sep=""))
+save(pr,file=paste("SourceData/MACAv2-METDATA/",modelnames[q],"_proj/pr",sep=""))
+save(tmax,file=paste("SourceData/MACAv2-METDATA/",modelnames[q],"_proj/tmax",sep=""))
+save(tmin,file=paste("SourceData/MACAv2-METDATA/",modelnames[q],"_proj/tmin",sep=""))
+save(rhmax,file=paste("SourceData/MACAv2-METDATA/",modelnames[q],"_proj/rhmax",sep=""))
+save(rhmin,file=paste("SourceData/MACAv2-METDATA/",modelnames[q],"_proj/rhmin",sep=""))
+}

@@ -35,16 +35,18 @@ countyNames <- sapply(countys_sp@polygons, function(x) x@ID)
 countytoget<-countyNames[c(1:67,83:157,288:290,359:517,562:854,960:1143,1160:1183,1198:1564,1742:1762,1796:1957,2011:2098,2212:2278,2284:2329,2396:2490,2788:2887,2927:3053)]#PA,NY,NJ,MD,DE,DC,NC,VA,SC,WV,OH,MI,GA,KY,IN,IL,AL,TN,WI,MS,MN,MO,LA,AR,IA
 countynum<-length(countytoget)
 years<-c(1980:2005)
-tmax<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
-tmin<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
-pr<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
-rhmax<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
-rhmin<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
 
-m1=1
-m2=1
 # read orgininal data
-for (i in 1:26){
+for (q in 1:18){
+  dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA_hind/",modelnames[q],"_proj",sep=""),recursive = TRUE)
+  tmax<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
+  tmin<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
+  pr<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
+  rhmax<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
+  rhmin<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
+  m1=1
+  m2=1
+  for (i in 1:26){
   if ((i%%5==1)&(years[i]<2005)){
     Tmax_file<-paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmax_",modelnames[q],"_r1i1p1_historical_"
                      ,years[i],"_",years[i]+4,"_CONUS_daily.nc",sep="")
@@ -139,3 +141,4 @@ for (i in 1:26){
   save(tmin,file=paste("SourceData/MACAv2-METDATA_hind/",modelnames[q],"_hind/tmin",sep=""))
   save(rhmax,file=paste("SourceData/MACAv2-METDATA_hind/",modelnames[q],"_hind/rhmax",sep=""))
   save(rhmin,file=paste("SourceData/MACAv2-METDATA_hind/",modelnames[q],"_hind/rhmin",sep=""))
+}
