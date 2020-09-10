@@ -33,9 +33,9 @@ Plot the time series plot (Figure 2) and the marginal distribution of yield proj
 10. Run cumulative_sens.R:
 Calculate the cumulative sensitiviy at each stage and make the plot (Figure 4).
 
-Some notes below
-# Figure 1 is a flow diagram, not plotted by these scripts.
-# The required source MACA-METDATA data are in "/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw" folder, METDATA in "/gpfs/group/kzk10/default/public/METDATA/raw" folder. The required yield data and growing area data are "yielddata.csv" and "harvest_area.csv".
+Some notes below:
+Figure 1 is a flow diagram, not plotted by these scripts.
+The required source MACA-METDATA data are in "/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw" folder, METDATA in "/gpfs/group/kzk10/default/public/METDATA/raw" folder. The required yield data and growing area data are "yielddata.csv" and "harvest_area.csv".
 
 Author: 
 Haochen Ye
