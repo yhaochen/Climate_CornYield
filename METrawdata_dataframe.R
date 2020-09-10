@@ -119,12 +119,12 @@ save(rhmin,file="Metdata/Metdataframe/Metrhmin")
 
 
 #second calculate VPD, GDD, EDD
-
-load("Metdata/Metdataframe/Metpr")
-load("Metdata/Metdataframe/Mettmax")
-load("Metdata/Metdataframe/Mettmin")
-load("Metdata/Metdataframe/Metrhmax")
-load("Metdata/Metdataframe/Metrhmin")
+# 
+# load("Metdata/Metdataframe/Metpr")
+# load("Metdata/Metdataframe/Mettmax")
+# load("Metdata/Metdataframe/Mettmin")
+# load("Metdata/Metdataframe/Metrhmax")
+# load("Metdata/Metdataframe/Metrhmin")
 
 RHmean<-(rhmax+rhmin)/2
 Tmean<-(tmax+tmin)/2

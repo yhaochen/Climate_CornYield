@@ -143,8 +143,8 @@ for (i in 1:94){
   }
   m1<-m2+1
 }
-save(pr,file=paste("Data/MACAv2-METDATA/",Dataname,"_proj/pr",sep=""))
-save(tmax,file=paste("Data/MACAv2-METDATA/",Dataname,"_proj/tmax",sep=""))
-save(tmin,file=paste("Data/MACAv2-METDATA/",Dataname,"_proj/tmin",sep=""))
-save(rhmax,file=paste("Data/MACAv2-METDATA/",Dataname,"_proj/rhmax",sep=""))
-save(rhmin,file=paste("Data/MACAv2-METDATA/",Dataname,"_proj/rhmin",sep=""))
+save(pr,file=paste("SourceData/MACAv2-METDATA/",Dataname,"_proj/pr",sep=""))
+save(tmax,file=paste("SourceData/MACAv2-METDATA/",Dataname,"_proj/tmax",sep=""))
+save(tmin,file=paste("SourceData/MACAv2-METDATA/",Dataname,"_proj/tmin",sep=""))
+save(rhmax,file=paste("SourceData/MACAv2-METDATA/",Dataname,"_proj/rhmax",sep=""))
+save(rhmin,file=paste("SourceData/MACAv2-METDATA/",Dataname,"_proj/rhmin",sep=""))

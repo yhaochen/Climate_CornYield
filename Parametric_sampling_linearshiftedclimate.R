@@ -31,7 +31,7 @@ for (i in 1:32){
   meanyield_anomaly[i]<-weighted.mean(Data$yield_anomaly[indx],na.rm=T,w = Data$area[indx])
 }
 #with each climate projection, save the hind/proj yield data of 64 structures
-parasamplenum<-1000
+parasamplenum<-10000
 Tstructure<-c(5,6,7,8)
 Pstructure<-c(9,10)
 Tnum<-2^length(Tstructure)

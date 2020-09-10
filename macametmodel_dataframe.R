@@ -52,7 +52,7 @@ modelnames<-c("MIROC5","MRI-CGCM3","IPSL-CM5B-LR","IPSL-CM5A-LR",
 
 #with each climate projection, save the hind/proj yield data of 64 structures
 for (q in 14:length(modelnames)){
-  foldername<-paste("Data/MACAv2-METDATA/",modelnames[q],"_proj/",sep="")
+  foldername<-paste("SourceData/MACAv2-METDATA/",modelnames[q],"_proj/",sep="")
   load(paste(foldername,"tmax",sep=""))
   load(paste(foldername,"tmin",sep=""))
   load(paste(foldername,"pr",sep=""))
@@ -134,6 +134,6 @@ for (q in 14:length(modelnames)){
   Data_proj<-data.frame(StateANSI=rep(StateANSI,each=94),countyANSI=rep(CountyANSI,each=94),fips=rep(ANSI,each=94),
                         year=rep(c(1:94),countynum),Tmax_GS=Tmax_GS,Tmin_GS=Tmin_GS,GDD_GS=GDD_GS,GS_length=GS_length,
                         EDD_GS=EDD_GS,VPD_GS=VPD_GS,Pr_GS=Pr_GS)
-  save(Data_proj,file=paste("Metdata_temp/macaprojdataframe/Data_",modelnames[q],sep=""))
+  save(Data_proj,file=paste("Metdata/macaprojdataframe/Data_",modelnames[q],sep=""))
 }
 

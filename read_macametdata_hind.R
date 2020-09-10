@@ -134,8 +134,8 @@ for (i in 1:26){
   print(i)
   
 }
-  save(pr,file=paste("Data/MACAv2-METDATA_hind/",modelnames[q],"_hind/pr",sep=""))
-  save(tmax,file=paste("Data/MACAv2-METDATA_hind/",modelnames[q],"_hind/tmax",sep=""))
-  save(tmin,file=paste("Data/MACAv2-METDATA_hind/",modelnames[q],"_hind/tmin",sep=""))
-  save(rhmax,file=paste("Data/MACAv2-METDATA_hind/",modelnames[q],"_hind/rhmax",sep=""))
-  save(rhmin,file=paste("Data/MACAv2-METDATA_hind/",modelnames[q],"_hind/rhmin",sep=""))
+  save(pr,file=paste("SourceData/MACAv2-METDATA_hind/",modelnames[q],"_hind/pr",sep=""))
+  save(tmax,file=paste("SourceData/MACAv2-METDATA_hind/",modelnames[q],"_hind/tmax",sep=""))
+  save(tmin,file=paste("SourceData/MACAv2-METDATA_hind/",modelnames[q],"_hind/tmin",sep=""))
+  save(rhmax,file=paste("SourceData/MACAv2-METDATA_hind/",modelnames[q],"_hind/rhmax",sep=""))
+  save(rhmin,file=paste("SourceData/MACAv2-METDATA_hind/",modelnames[q],"_hind/rhmin",sep=""))
