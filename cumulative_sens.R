@@ -7,10 +7,10 @@ graphics.off()
 #read 30-year mean yield data and calculate cumulative uncertainty at each stage
 for (k in 1:2){
   if (k==1){
-    load("Metdata_temp/proj_30yravg_2020_2049")
+    load("Metdata/proj_30yravg_2020_2049")
   }
   if (k==2){
-    load("Metdata_temp/proj_30yravg_2070_2099")
+    load("Metdata/proj_30yravg_2070_2099")
   }
 
   #Level one: para
@@ -61,11 +61,11 @@ for (k in 1:2){
   cumu_uncertainty<-data.frame(all=std_all,para=std_marg_para,clim=std_marg_clim,stru=std_marg_stru,
                               para_clim=std_marg_para_clim,para_stru=std_marg_para_stru,stru_clim=std_marg_stru_clim)
   if (k==1){
-    save(cumu_uncertainty,file="Metdata_temp/cumu_uncertainty_2020_2049")
+    save(cumu_uncertainty,file="Metdata/cumu_uncertainty_2020_2049")
   }
 
   if (k==2){
-    save(cumu_uncertainty,file="Metdata_temp/cumu_uncertainty_2070_2099")
+    save(cumu_uncertainty,file="Metdata/cumu_uncertainty_2070_2099")
   }
 }
 
@@ -76,10 +76,10 @@ par(mfrow=c(2,1))
 par(mar=c(4.5,5.1,1.6,2.1))
 for (k in 1:2){
   if (k==1){
-    load("Metdata_temp/cumu_uncertainty_2020_2049")
+    load("Metdata/cumu_uncertainty_2020_2049")
   }
   if (k==2){
-    load("Metdata_temp/cumu_uncertainty_2070_2099")
+    load("Metdata/cumu_uncertainty_2070_2099")
   }
   color<-c(rgb(0,0,0,0.3),rgb(1,0,0,0.3),rgb(0,0,1,0.3),rgb(0,1,0,0.3),
            rgb(1,0,1,0.3),rgb(1,1,0,0.3),rgb(0,1,1,0.3))
