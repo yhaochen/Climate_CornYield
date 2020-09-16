@@ -20,8 +20,7 @@ modelnames<-c("MIROC5","MRI-CGCM3","IPSL-CM5B-LR","IPSL-CM5A-LR",
               "MIROC-ESM-CHEM", "inmcm4", "HadGEM2-CC365", "CanESM2", "bcc-csm1-1-m")
 
 
-file<-nc_open(paste("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmax_",
-                    MIROC5,"_r1i1p1_rcp85_2006_2010_CONUS_daily.nc",sep=""))
+file<-nc_open("/gpfs/group/kzk10/default/private/data_archive/MACAv2-METDATA/raw/macav2metdata_tasmax_MIROC5_r1i1p1_rcp85_2006_2010_CONUS_daily.nc")
 grid_lon<-as.vector(file$dim$lon$vals)
 grid_lat<-as.vector(file$dim$lat$vals)
 dim_lon<-length(grid_lon)
@@ -39,7 +38,7 @@ countytoget<-countyNames[c(1:67,83:157,288:290,359:517,562:854,960:1143,1160:118
 countynum<-length(countytoget)
 years<-c(2006:2099)
 
-for (1 in 1:18){
+for (q in 1:18){
 tmax<-matrix(NA,nrow=countynum,ncol=71*365+23*366)
 tmin<-matrix(NA,nrow=countynum,ncol=71*365+23*366)
 pr<-matrix(NA,nrow=countynum,ncol=71*365+23*366)
