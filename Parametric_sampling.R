@@ -120,7 +120,7 @@ for (i in 1:Tnum){ #T
     
     #projection of each sample
     col_data_proj<-rep(NA,variablenum-1) #first variable is intercept
-    for (q in 1:strunum){
+    for (q in 1:modelnum){
       load(paste("Metdata/macaprojdataframe/Data_",modelnames[q],sep=""))
       Data_proj$StateANSI<-factor(Data_proj$StateANSI)
       Data_proj$year=Data_proj$year+2005
