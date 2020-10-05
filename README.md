@@ -21,7 +21,7 @@ Process the above matrix: shift the observational METDATA based on the change be
 6. Run Parametric_sampling.R:
 Sample all three uncertainty sources. This is the most time consuming script due to the sampling of parametric uncertainty. Save the calculated best fits and samples of yield projection as matrices.
 
-7. Run Parametric_sampling_linearshifted.R
+7. Run Parametric_sampling_linearshiftedclimate.R
 Same as 6, but for the two 30-year shifted climate projection. Also save the best fits and samples as matrices.
 
 8. Run 30yravg_data.R:
