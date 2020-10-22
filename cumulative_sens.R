@@ -12,54 +12,25 @@ for (k in 1:2){
   if (k==2){
     load("Metdata/proj_30yravg_2070_2099")
   }
-
-  #Level one: para
-  std_para<-rep(NA,strunum*climnum)
-  for (i in 1:strunum){
-    for (j in 1:climnum){
-      std_para[(i-1)*climnum+j]<-var(proj_30yravg[i,j, ])*(parasamplenum-1)/parasamplenum #population var instead of sample var
-    }
+  climnum<-dim(proj_30yravg)[1]
+  parasamplenum<-dim(proj_30yravg)[2]
+  #Level one: 
+  std_para<-rep(NA,climnum)
+  for (i in 1:climnum){
+    std_para[i]<-var(proj_30yravg[i, ])*(parasamplenum-1)/parasamplenum #population var instead of sample var
   }
   std_marg_para<-sqrt(mean(std_para))
 
-  std_stru<-rep(NA,parasamplenum*climnum)
+  std_clim<-rep(NA,parasamplenum)
   for (i in 1:parasamplenum){
-    for (j in 1:climnum){
-      std_stru[(i-1)*climnum+j]<-var(proj_30yravg[ ,j,i])*(strunum-1)/strunum
-    }
-  }
-  std_marg_stru<-sqrt(mean(std_stru))
-
-  std_clim<-rep(NA,parasamplenum*strunum)
-  for (i in 1:parasamplenum){
-    for (j in 1:strunum){
-      std_clim[(i-1)*strunum+j]<-var(proj_30yravg[j, ,i])*(climnum-1)/climnum
-    }
+    std_clim[i]<-var(proj_30yravg[ ,i])*(climnum-1)/climnum
   }
   std_marg_clim<-sqrt(mean(std_clim))
 
-  #Level two: structure
-  std_para_stru<-rep(NA,climnum)
-  for (i in 1:climnum){
-    std_para_stru[i]<-var(as.vector(proj_30yravg[ ,i, ]))*(strunum*parasamplenum-1)/(strunum*parasamplenum)
-  }
-  std_marg_para_stru<-sqrt(mean(std_para_stru))
-
-  std_para_clim<-rep(NA,strunum)
-  for (i in 1:strunum){
-    std_para_clim[i]<-var(as.vector(proj_30yravg[i, , ]))*(climnum*parasamplenum-1)/(climnum*parasamplenum)
-  }
-  std_marg_para_clim<-sqrt(mean(std_para_clim))
-
-  std_stru_clim<-rep(NA,parasamplenum)
-  for (i in 1:parasamplenum){
-    std_stru_clim[i]<-var(as.vector(proj_30yravg[ , ,i]))*(climnum*strunum-1)/(climnum*strunum)
-  }
-  std_marg_stru_clim<-sqrt(mean(std_stru_clim))
-  #Level three: clim
-  std_all<-sqrt(var(proj_30yravg))*(climnum*strunum*parasamplenum-1)/(climnum*strunum*parasamplenum)
-  cumu_uncertainty<-data.frame(all=std_all,para=std_marg_para,clim=std_marg_clim,stru=std_marg_stru,
-                              para_clim=std_marg_para_clim,para_stru=std_marg_para_stru,stru_clim=std_marg_stru_clim)
+  #Level two:
+  std_para_clim<-sqrt(var(as.vector(proj_30yravg)))*(climnum*parasamplenum-1)/(climnum*parasamplenum)
+  cumu_uncertainty<-data.frame(para=std_marg_para,clim=std_marg_clim, para_clim=std_para_clim)
+  
   if (k==1){
     save(cumu_uncertainty,file="Metdata/cumu_uncertainty_2020_2049")
   }
@@ -70,7 +41,7 @@ for (k in 1:2){
 }
 
 
-png("Plots/7-layer.png", width = 1000, height = 720)
+png("Plots/3-layer.png", width = 1000, height = 720)
 #7-layer std
 par(mfrow=c(2,1))
 par(mar=c(4.5,5.1,1.6,2.1))
@@ -81,30 +52,28 @@ for (k in 1:2){
   if (k==2){
     load("Metdata/cumu_uncertainty_2070_2099")
   }
-  color<-c(rgb(0,0,0,0.3),rgb(1,0,0,0.3),rgb(0,0,1,0.3),rgb(0,1,0,0.3),
-           rgb(1,0,1,0.3),rgb(1,1,0,0.3),rgb(0,1,1,0.3))
-  text<-c("Parameter + Structure + Climate","Parameter","Climate","Structure",
-          "Parameter + Climate","Parameter + Structure","Structure + Climate")
-  textcolor<-c("black",rgb(1,0,0),rgb(0,0,1),"forestgreen",rgb(1,0,1),"orange","cyan3")
+  color<-c(rgb(1,0,0,0.3),rgb(0,1,0,0.3),rgb(0,0,1,0.3))
+  text<-c("Parameter","Climate","Parameter + Climate")
+  textcolor<-c(rgb(1,0,0),"forestgreen",rgb(0,0,1))
   #sort cumulative uncertainties
   sorted<-sort(cumu_uncertainty)
 
-  plot(0,0,xlim = c(0,sorted$all*1.4),ylim = c(0,8),xlab="",
+  plot(0,0,xlim = c(0,max(sorted)*1.4),ylim = c(0,3.5),xlab="",
        ylab=" ",type = "n",axes="FALSE",cex.lab=2)
-  axis(1,at=c(0,sorted$all),labels=c("0.0",sprintf("%.1f",sorted$all)),cex.axis=2)
-  for (i in 1:7){
-    polygon(c((sorted$all-sorted[1,i])/2, (sorted$all+sorted[1,i])/2,
-              (sorted$all+sorted[1,i])/2, (sorted$all-sorted[1,i])/2),
+  axis(1,at=c(0,max(sorted)),labels=c("0.0",sprintf("%.1f",max(sorted))),cex.axis=2)
+  for (i in 1:3){
+    polygon(c((max(sorted)-sorted[1,i])/2, (max(sorted)+sorted[1,i])/2,
+              (max(sorted)+sorted[1,i])/2, (max(sorted)-sorted[1,i])/2),
             c(i,i,i-1,i-1),col=color[which(cumu_uncertainty==sorted[1,i])],border=NA)
   }
-  mtext(side=1, at=sorted$all/2,line=1.5,"Yield anomaly (standard deviation)",cex=2) #serve as x axis label
-  right=sorted$all*1.2
+  mtext(side=1, at=max(sorted)/2,line=1.5,"Yield anomaly (standard deviation)",cex=2) #serve as x axis label
+  right=max(sorted)*1.2
   text(right,7.5,"Cumulative uncertainty",cex=2)
   
-  for (i in 1:7){
-    text(right,i-0.5,paste(sprintf("%.1f",sorted[1,i])," (",sprintf("%.1f",sorted[1,i]/sorted$all*100),"%)",sep=""),
+  for (i in 1:3){
+    text(right,i-0.5,paste(sprintf("%.1f",sorted[1,i])," (",sprintf("%.1f",sorted[1,i]/max(sorted)*100),"%)",sep=""),
          cex=2,col=textcolor[which(cumu_uncertainty==sorted[1,i])])
-    text(sorted$all/2,i-0.5,text[which(cumu_uncertainty==sorted[1,i])],cex=2,col=textcolor[which(cumu_uncertainty==sorted[1,i])])
+    text(max(sorted)/2,i-0.5,text[which(cumu_uncertainty==sorted[1,i])],cex=2,col=textcolor[which(cumu_uncertainty==sorted[1,i])])
   }
 }
 dev.off()

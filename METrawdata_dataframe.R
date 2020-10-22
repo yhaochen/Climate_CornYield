@@ -354,22 +354,15 @@ model<-lm(yield~Tmax_GS+Tmin_GS+GDD_GS+EDD_GS+VPD_GS+Pr_GS+fips+year,data=Data)
 Coef<-summary(model)$coefficients
 Data$yield_anomaly<-rep(NA,dim(Data)[1])
 for (i in 1:dim(Data)[1]){
-  row_county<-which(row.names(Coef)==paste("fips",Data$fips[i],sep=""))
   row_year<-which(row.names(Coef)==paste("year",Data$year[i],sep=""))
-  if (length(row_county)==0){
-    countyeffect<-0
-  } else{
-    countyeffect<-Coef[row_county,1]
-  }
   if (length(row_year)==0){
     yeareffect<-0
   } else{
     yeareffect<-Coef[row_year,1]
   }
-  Data$yield_anomaly[i]<-Data$yield[i]-countyeffect-yeareffect
+  Data$yield_anomaly[i]<-Data$yield[i]-yeareffect
 }
-model<-lm(yield_anomaly~Tmax_GS+Tmin_GS+GDD_GS+EDD_GS+VPD_GS+Pr_GS,data=Data)
-
-save(Data,file = "Metdata/Data_Metobs")
+Data$yield_anomaly<-Data$yield_anomaly-weighted.mean(Data$yield_anomaly,na.rm=T,w = Data$area)
+save(Data,file = "Metdata/Metdataframe/Data_Metobs")
 
 

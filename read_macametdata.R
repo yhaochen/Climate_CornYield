@@ -7,7 +7,6 @@ library(maptools)
 library(ncdf4)
 library(ggplot2)
 library(usmap)
-library(precintcon)
 library(BMS)
 library(housingData)
 library(binaryLogic)
@@ -50,7 +49,11 @@ m1<-1 #used to record which columns to write in each loop
 m2<-1
 n1=1
 
-dir.create(paste("/storage/work/h/hxy46/Countywise/SourceData/MACAv2-METDATA_proj/",modelnames[q],"_proj",sep=""),recursive = TRUE)
+dir.create(paste("/storage/work/h/hxy46/Countywise/SourceData/MACAv2-METDATA_proj/",modelnames[q],"_proj/pr",sep=""),recursive = TRUE)
+dir.create(paste("/storage/work/h/hxy46/Countywise/SourceData/MACAv2-METDATA_proj/",modelnames[q],"_proj/tmax",sep=""),recursive = TRUE)
+dir.create(paste("/storage/work/h/hxy46/Countywise/SourceData/MACAv2-METDATA_proj/",modelnames[q],"_proj/tmin",sep=""),recursive = TRUE)
+dir.create(paste("/storage/work/h/hxy46/Countywise/SourceData/MACAv2-METDATA_proj/",modelnames[q],"_proj/rhmax",sep=""),recursive = TRUE)
+dir.create(paste("/storage/work/h/hxy46/Countywise/SourceData/MACAv2-METDATA_proj/",modelnames[q],"_proj/rhmin",sep=""),recursive = TRUE)
 
 #read original data
 for (i in 1:94){
