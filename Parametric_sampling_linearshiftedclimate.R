@@ -16,28 +16,31 @@ frac_between <- function (vect1,vect2,vect3){ #vect2 is lower, vect3 is higher
 
 #Metdata observation
 load("Metdata/Metdataframe/Data_Metobs")
+load("Metdata/kept_sample_num")
 Data$StateANSI<-factor(Data$StateANSI)
 
-#with each climate projection, save the hind/proj yield data of 64 structures
-parasamplenum<-100000
+#directly load the valid sample index of the 1000000 samples
+parasamplenum<-5000000
+stepwidth<-3 #sample parameters by +- std
 hindyear<-32
 projyear<-94
 
 #for the additional linear shifted climate proj (2020-2049; 2070-2099)
 proj_linearshifted_fit_2020_2049<-rep(NA,30)
-proj_linearshifted_parasample_2020_2049<-matrix(NA,nrow=30,ncol=parasamplenum)
+proj_linearshifted_parasample_2020_2049<-matrix(NA,nrow=30,ncol=length(validsample))
 proj_linearshifted_fit_2070_2099<-rep(NA,30)
-proj_linearshifted_parasample_2070_2099<-matrix(NA,nrow=30,ncol=parasamplenum)
-hind_parasample<-matrix(NA,nrow=hindyear,ncol=parasamplenum)
-meanyield_anomaly<-rep(NA,hindyear)
-for (i in 1:hindyear){
-  indx<-which(Data$year==levels(Data$year)[i])
-  meanyield_anomaly[i]<-weighted.mean(Data$yield_anomaly[indx],na.rm=T,w = Data$area[indx])
-} 
+proj_linearshifted_parasample_2070_2099<-matrix(NA,nrow=30,ncol=length(validsample))
 
 #Uncertainty sampling part
 set.seed(666)
-model<-lm(yield_anomaly~Tmax_GS+Tmin_GS+GDD_GS+EDD_GS+Pr_GS+VPD_GS,data=Data)
+Data$GDD_sqr<-Data$GDD_GS^2
+Data$EDD_sqr<-Data$EDD_GS^2
+Data$Tmax_sqr<-Data$Tmax_GS^2
+Data$Tmin_sqr<-Data$Tmin_GS^2
+Data$Pr_sqr<-Data$Pr_GS^2
+Data$VPD_sqr<-Data$VPD_GS^2
+model<-lm(yield_anomaly~GDD_GS+GDD_sqr+EDD_GS+EDD_sqr+Tmax_GS+Tmax_sqr+Tmin_GS+Tmin_sqr+
+            Pr_GS+Pr_sqr+VPD_GS+VPD_sqr,data=Data)
 variablenames<-variable.names(model)
 variablenum<-length(variablenames)
 #for hindcast of each parametric sample
@@ -45,41 +48,17 @@ col_data_hind<-rep(NA,variablenum-1) #first variable is intercept
 for (m in 1:(variablenum-1)){
   col_data_hind[m]<-which(colnames(Data)==variablenames[m+1])
 }
-hind<-predict(model,Data)
-#use model's best estimate to find a plausible window that covers 95% annual yield observation
-Besthind<-data.frame(yield_anomaly=hind,area=Data$area)
-hind_yield_anomaly<-rep(NA,hindyear)
-for (k in 1:hindyear){
-  indx<-which(Data$year==levels(Data$year)[k])
-  hind_yield_anomaly[k]<-weighted.mean(Besthind$yield_anomaly[indx],na.rm=T,w = Besthind$area[indx])
-} 
-difference<-abs(hind_yield_anomaly-meanyield_anomaly)
-step<-quantile(difference,0.95)
-upperbound<-hind_yield_anomaly+step
-lowerbound<-hind_yield_anomaly-step
 
 bestestimate<-summary(model)$coefficient[ ,1]
+bestestimatestd<-summary(model)$coefficient[ ,2]
 #Latin hypercube sampling in a range for all parameters defined above
 MCpara<-randomLHS(parasamplenum,variablenum) #range [0,1]
-stepwidth<-0.25 #sample parameters by +- certain percent
 for (m in 1:variablenum){
-  MCpara[ ,m]<-MCpara[ ,m]*bestestimate[m]*stepwidth*2+bestestimate[m]*(1-stepwidth)
+  MCpara[ ,m]<-MCpara[ ,m]*2-1 #map to [-1,1]
+  MCpara[ ,m]<-MCpara[ ,m]*(bestestimatestd[m]*stepwidth) + bestestimate[m]
 }
 
-for (k in 1:hindyear){
-  indx<-which(Data$year==levels(Data$year)[k])
-  for (n in 1:parasamplenum){
-    hind_parasample[k,n]<-MCpara[n,1]+MCpara[n,2:variablenum]%*%colMeans(as.matrix(Data[indx,col_data_hind]))
-  }
-}
 
-#keep the samples with hindcast passing the plausible window
-for (n in 1:parasamplenum){
-  if (frac_between(hind_parasample[ ,n],lowerbound,upperbound)!=1){
-    hind_parasample[ ,n]<-NA
-  }
-}
-     
 #linearshifted proj
 for (projmodel in 1:2){
   if (projmodel==1){
@@ -88,6 +67,12 @@ for (projmodel in 1:2){
     Data_proj_linearshifted_2020_2049$StateANSI<-factor(Data_proj_linearshifted_2020_2049$StateANSI)
     Data_proj_linearshifted_2020_2049$year=Data_proj_linearshifted_2020_2049$year+2019
     Data_proj_linearshifted_2020_2049$year<-factor(Data_proj_linearshifted_2020_2049$year)
+    Data_proj_linearshifted_2020_2049$GDD_sqr<-Data_proj_linearshifted_2020_2049$GDD_GS^2
+    Data_proj_linearshifted_2020_2049$EDD_sqr<-Data_proj_linearshifted_2020_2049$EDD_GS^2
+    Data_proj_linearshifted_2020_2049$Tmax_sqr<-Data_proj_linearshifted_2020_2049$Tmax_GS^2
+    Data_proj_linearshifted_2020_2049$Tmin_sqr<-Data_proj_linearshifted_2020_2049$Tmin_GS^2
+    Data_proj_linearshifted_2020_2049$Pr_sqr<-Data_proj_linearshifted_2020_2049$Pr_GS^2
+    Data_proj_linearshifted_2020_2049$VPD_sqr<-Data_proj_linearshifted_2020_2049$VPD_GS^2
     for (m in 1:(variablenum-1)){
       col_data_proj[m]<-which(colnames(Data_proj_linearshifted_2020_2049)==variablenames[m+1])
     }
@@ -95,10 +80,9 @@ for (projmodel in 1:2){
     for (k in 1:30){
       indx<-which(Data_proj_linearshifted_2020_2049$year==levels(Data_proj_linearshifted_2020_2049$year)[k])
       proj_linearshifted_fit_2020_2049[k]<-mean(proj[indx],na.rm=TRUE)
-      for (n in 1:parasamplenum){
-        if (!is.na(hind_parasample[1,n])){
-          proj_linearshifted_parasample_2020_2049[k,n]<-MCpara[n,1]+MCpara[n,2:variablenum]%*%colMeans(as.matrix(Data_proj_linearshifted_2020_2049[indx,col_data_proj]))
-        }
+      for (n in 1:length(validsample)){
+        validindx<-validsample[n]
+        proj_linearshifted_parasample_2020_2049[k,n]<-MCpara[validindx,1]+MCpara[validindx,2:variablenum]%*%colMeans(as.matrix(Data_proj_linearshifted_2020_2049[indx,col_data_proj]))
       }
     }
   }
@@ -108,6 +92,12 @@ for (projmodel in 1:2){
     Data_proj_linearshifted_2070_2099$StateANSI<-factor(Data_proj_linearshifted_2070_2099$StateANSI)
     Data_proj_linearshifted_2070_2099$year=Data_proj_linearshifted_2070_2099$year+2069
     Data_proj_linearshifted_2070_2099$year<-factor(Data_proj_linearshifted_2070_2099$year)
+    Data_proj_linearshifted_2070_2099$GDD_sqr<-Data_proj_linearshifted_2070_2099$GDD_GS^2
+    Data_proj_linearshifted_2070_2099$EDD_sqr<-Data_proj_linearshifted_2070_2099$EDD_GS^2
+    Data_proj_linearshifted_2070_2099$Tmax_sqr<-Data_proj_linearshifted_2070_2099$Tmax_GS^2
+    Data_proj_linearshifted_2070_2099$Tmin_sqr<-Data_proj_linearshifted_2070_2099$Tmin_GS^2
+    Data_proj_linearshifted_2070_2099$Pr_sqr<-Data_proj_linearshifted_2070_2099$Pr_GS^2
+    Data_proj_linearshifted_2070_2099$VPD_sqr<-Data_proj_linearshifted_2070_2099$VPD_GS^2
     for (m in 1:(variablenum-1)){
       col_data_proj[m]<-which(colnames(Data_proj_linearshifted_2070_2099)==variablenames[m+1])
     }
@@ -115,17 +105,13 @@ for (projmodel in 1:2){
     for (k in 1:30){
       indx<-which(Data_proj_linearshifted_2070_2099$year==levels(Data_proj_linearshifted_2070_2099$year)[k])
       proj_linearshifted_fit_2070_2099[k]<-mean(proj[indx],na.rm=TRUE)
-      for (n in 1:parasamplenum){
-        if (!is.na(hind_parasample[1,n])){
-          proj_linearshifted_parasample_2070_2099[k,n]<-MCpara[n,1]+MCpara[n,2:variablenum]%*%colMeans(as.matrix(Data_proj_linearshifted_2070_2099[indx,col_data_proj]))
-        } 
+      for (n in 1:length(validsample)){
+        validindx<-validsample[n]
+        proj_linearshifted_parasample_2070_2099[k,n]<-MCpara[validindx,1]+MCpara[validindx,2:variablenum]%*%colMeans(as.matrix(Data_proj_linearshifted_2070_2099[indx,col_data_proj]))
       }
     }
   } 
 }
-validsample<-which(!is.na(hind_parasample[1, ]))
-proj_linearshifted_parasample_2020_2049<-proj_linearshifted_parasample_2020_2049[ ,validsample]
-proj_linearshifted_parasample_2070_2099<-proj_linearshifted_parasample_2070_2099[ ,validsample]
 save(proj_linearshifted_fit_2020_2049,file="Metdata/proj_linearshifted_bestfit_2020_2049")
 save(proj_linearshifted_parasample_2020_2049,file="Metdata/proj_linearshifted_parasample_2020_2049")
 save(proj_linearshifted_fit_2070_2099,file="Metdata/proj_linearshifted_bestfit_2070_2099")

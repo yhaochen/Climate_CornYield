@@ -26,8 +26,9 @@ modelnames<-c("MIROC5","MRI-CGCM3","IPSL-CM5B-LR","IPSL-CM5A-LR",
 load("Metdata/Metdataframe/Data_Metobs")
 Data$StateANSI<-factor(Data$StateANSI)
 
-#with each climate projection, save the hind/proj yield data of 64 structures
-parasamplenum<-100000
+#with each climate projection, save the hind/proj yield data
+parasamplenum<-5000000
+stepwidth<-3 #sample parameters by +- std
 hindyear<-32
 projyear<-94
 modelnum<-length(modelnames)
@@ -37,7 +38,7 @@ modelnum<-length(modelnames)
 hind_fit<-rep(NA,hindyear)
 proj_fit<-matrix(NA,nrow = projyear,ncol=modelnum)
 hind_parasample<-matrix(NA,nrow=hindyear,ncol=parasamplenum)
-proj_parasample<-array(NA,c(projyear,modelnum,parasamplenum))
+
 totlen=dim(Data)[1]
 meanyield_anomaly<-rep(NA,hindyear)
 for (i in 1:hindyear){
@@ -49,11 +50,21 @@ for (i in 1:hindyear){
 
 #Uncertainty sampling part
 set.seed(666)
-model<-lm(yield_anomaly~Tmax_GS+Tmin_GS+GDD_GS+EDD_GS+Pr_GS+VPD_GS,data=Data)
-variablenames<-variable.names(model)
+Data$GDD_sqr<-Data$GDD_GS^2
+Data$EDD_sqr<-Data$EDD_GS^2
+Data$Tmax_sqr<-Data$Tmax_GS^2
+Data$Tmin_sqr<-Data$Tmin_GS^2
+Data$Pr_sqr<-Data$Pr_GS^2
+Data$VPD_sqr<-Data$VPD_GS^2
+model<-lm(yield_anomaly~GDD_GS+GDD_sqr+EDD_GS+Tmin_GS+Tmin_sqr+
+            Pr_GS+Pr_sqr+VPD_GS+VPD_sqr,data=Data) #best model
+fullmodel<-lm(yield_anomaly~GDD_GS+GDD_sqr+EDD_GS+EDD_sqr+Tmax_GS+Tmax_sqr+Tmin_GS+Tmin_sqr+
+                Pr_GS+Pr_sqr+VPD_GS+VPD_sqr,data=Data)
+variablenames<-variable.names(fullmodel)
 variablenum<-length(variablenames)
 #for hindcast of each parametric sample
 col_data_hind<-rep(NA,variablenum-1) #first variable is intercept
+
 for (m in 1:(variablenum-1)){
   col_data_hind[m]<-which(colnames(Data)==variablenames[m+1])
 }
@@ -70,19 +81,23 @@ step<-quantile(difference,0.95)
 upperbound<-hind_yield_anomaly+step
 lowerbound<-hind_yield_anomaly-step
     
-bestestimate<-summary(model)$coefficient[ ,1]
+bestestimate<-summary(fullmodel)$coefficient[ ,1]
+bestestimatestd<-summary(fullmodel)$coefficient[ ,2]
+#EDD terms best estimates from the best model are outside the 3-sigma range of the full model
+extrawidth<-c(0,0,0,0.15,0.0005,0,0,0,0,0,0,0,0)
 #Latin hypercube sampling in a range for all parameters defined above
 MCpara<-randomLHS(parasamplenum,variablenum) #range [0,1]
-stepwidth<-0.25 #sample parameters by +- certain percent
 for (m in 1:variablenum){
-  MCpara[ ,m]<-MCpara[ ,m]*bestestimate[m]*stepwidth*2+bestestimate[m]*(1-stepwidth)
+  MCpara[ ,m]<-MCpara[ ,m]*2-1 #map to [-1,1]
+  MCpara[ ,m]<-MCpara[ ,m]*(bestestimatestd[m]*stepwidth+extrawidth[m]) + bestestimate[m]
 }
 
 for (k in 1:hindyear){
   indx<-which(Data$year==levels(Data$year)[k])
   hind_fit[k]<-mean(hind[indx],na.rm=TRUE,w = Data$area[indx])
   for (n in 1:parasamplenum){
-    hind_parasample[k,n]<-MCpara[n,1]+MCpara[n,2:variablenum]%*%colMeans(as.matrix(Data[indx,col_data_hind]))
+    hind_parasample[k,n]<-MCpara[n,1]+MCpara[n,2:variablenum]%*%
+      apply(as.matrix(Data[indx,col_data_hind]),2,function(v) weighted.mean(x=v,w=Data$area[indx]))
   }
 }
   
@@ -92,32 +107,36 @@ for (n in 1:parasamplenum){
     hind_parasample[ ,n]<-NA
   }
 }
- 
+validsample<-which(!is.na(hind_parasample[1, ]))
+
 #projection of each sample
+proj_parasample<-array(NA,c(projyear,modelnum,length(validsample)))
 col_data_proj<-rep(NA,variablenum-1) #first variable is intercept
 for (q in 1:modelnum){
   load(paste("Metdata/macaprojdataframe/Data_",modelnames[q],sep=""))
   Data_proj$StateANSI<-factor(Data_proj$StateANSI)
   Data_proj$year=Data_proj$year+2005
   Data_proj$year<-factor(Data_proj$year)
+  Data_proj$GDD_sqr<-Data_proj$GDD_GS^2
+  Data_proj$EDD_sqr<-Data_proj$EDD_GS^2
+  Data_proj$Tmax_sqr<-Data_proj$Tmax_GS^2
+  Data_proj$Tmin_sqr<-Data_proj$Tmin_GS^2
+  Data_proj$Pr_sqr<-Data_proj$Pr_GS^2
+  Data_proj$VPD_sqr<-Data_proj$VPD_GS^2
   for (m in 1:(variablenum-1)){
     col_data_proj[m]<-which(colnames(Data_proj)==variablenames[m+1])
   }
   proj<-predict(model,Data_proj)
   for (k in 1:projyear){
     indx<-which(Data_proj$year==levels(Data_proj$year)[k])
-    proj_fit[k,q]<-mean(proj[indx],na.rm=TRUE,w = Data$area[indx])
-    for (n in 1:parasamplenum){
-      if (!is.na(hind_parasample[1,n])){
-        proj_parasample[k,q,n]<-MCpara[n,1]+
-          MCpara[n,2:variablenum]%*%colMeans(as.matrix(Data_proj[indx,col_data_proj]))
-      }
-    }
+    proj_fit[k,q]<-mean(proj[indx],na.rm=TRUE)
+    proj_parasample[k,q, ]<-MCpara[validsample,1]+MCpara[validsample,2:variablenum]%*%colMeans(as.matrix(Data_proj[indx,col_data_proj]))  
   }
 }
-validsample<-which(!is.na(hind_parasample[1, ]))
 hind_parasample<-hind_parasample[ ,validsample]
-proj_parasample<-proj_parasample[ , ,validsample]
+
+
+save(validsample,file="Metdata/kept_sample_num")
 save(hind_fit,file="Metdata/hind_bestfit")
 save(proj_fit,file="Metdata/proj_bestfit")
 save(hind_parasample,file="Metdata/hind_parasample")
