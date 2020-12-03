@@ -2,13 +2,15 @@
 #Take the mean climate projection (from 18 models), and combine with hindcast to form 1980-2099 data
 rm(list = ls())
 graphics.off()
-source("plots.R")
-source("GDDEDD.R")
 
 modelnames<-c("MIROC5","MRI-CGCM3","IPSL-CM5B-LR","IPSL-CM5A-LR", 
               "HadGEM2-ES365","GFDL-ESM2M","GFDL-ESM2G","CSIRO-Mk3-6-0","bcc-csm1-1",
               "MIROC-ESM", "IPSL-CM5A-MR", "CNRM-CM5","BNU-ESM",
               "MIROC-ESM-CHEM", "inmcm4", "HadGEM2-CC365", "CanESM2", "bcc-csm1-1-m")
+
+dir.create("/storage/work/h/hxy46/Countywise/SourceData/MACAv2-METDATA_meandata_1980-2099",recursive = TRUE)
+dir.create("/storage/work/h/hxy46/Countywise/SourceData/MACAv2-METDATA_proj/mean_proj",recursive = TRUE)
+dir.create("/storage/work/h/hxy46/Countywise/SourceData/MACAv2-METDATA_hind/mean_hind",recursive = TRUE)
 
 #calculate a mean climate proj/hind
 
@@ -32,8 +34,6 @@ for (i in 1:length(modelnames)){
    Pr_mean_proj<-Pr_mean_proj+pr
    Rhmax_mean_proj<-Rhmax_mean_proj+rhmax
    Rhmin_mean_proj<-Rhmin_mean_proj+rhmin
-   print(i)
-   print(which(is.na(Pr_mean_proj[1, ]))[1])
 }
 #Calculate projection mean
 Tmax_mean_proj<-Tmax_mean_proj/length(modelnames)-273.15
@@ -68,8 +68,6 @@ for (i in 1:length(modelnames)){
   Pr_mean_hind<-Pr_mean_hind+pr
   Rhmax_mean_hind<-Rhmax_mean_hind+rhmax
   Rhmin_mean_hind<-Rhmin_mean_hind+rhmin
-  print(i)
-  print(which(is.na(Pr_mean_hind[1, ]))[1])
 }
 #calculate hindcast mean
 Tmax_mean_hind<-Tmax_mean_hind/length(modelnames)-273.15
