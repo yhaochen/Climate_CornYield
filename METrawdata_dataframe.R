@@ -8,7 +8,6 @@ library(maptools)
 library(ncdf4)
 library(ggplot2)
 library(usmap)
-library(precintcon)
 library(BMS)
 library(housingData)
 library(binaryLogic)
@@ -44,7 +43,7 @@ rhmin<-matrix(NA,nrow=countynum,ncol=28*365+10*366)
 
 m1<-1 #used to record which columns to write in each loop
 m2<-1
-
+dir.create("/storage/work/h/hxy46/Countywise/Metdata/Metdataframe",recursive = TRUE)
 for (i in 1:38){
   #read data from 1979 to 2016
   Tmax_file<-paste("/gpfs/group/kzk10/default/public/METDATA/raw/tmmx_",i+1978,".nc",sep="")
@@ -275,7 +274,9 @@ for (i in 1:countynum){
 }
 CountyANSI<-as.numeric(substrRight(ANSI,3))
 StateANSI<-as.numeric(substr(ANSI,1,2))
-
+save(ANSI,file="ANSI")
+save(CountyANSI,file="CountyANSI")
+save(StateANSI,file="StateANSI")
 
 Tmax_GS<-rep(NA,countynum*38)
 Tmin_GS<-rep(NA,countynum*38)

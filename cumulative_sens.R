@@ -68,9 +68,15 @@ for (k in 1:2){
   }
   mtext(side=1, at=max(sorted)/2,line=1.5,"Yield anomaly (standard deviation)",cex=2) #serve as x axis label
   right=max(sorted)*1.2
+  if (k==1){
+    text(0,3.3,"(a).",cex=2)
+  }
+  if (k==2){
+    text(0,3.3,"(b).",cex=2)
+  }
   text(right,3.3,"Cumulative uncertainty",cex=2)
   if (k==1){
-    text(max(sorted)/2,3.3,"(a2020 - 2049",cex=2)
+    text(max(sorted)/2,3.3,"2020 - 2049",cex=2)
   }
   if (k==2){
     text(max(sorted)/2,3.3,"2070 - 2099",cex=2)

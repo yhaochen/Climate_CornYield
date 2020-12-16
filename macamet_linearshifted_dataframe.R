@@ -1,7 +1,6 @@
 
 rm(list = ls())
 graphics.off()
-source("plots.R")
 source("GDDEDD.R")
 
 ma <- function(arr, n){  #moving avg function
@@ -80,11 +79,11 @@ for (i in 1:12){
   }
   #calculate T difference and P, RH ratio
   Tdiff_2020[i]<-mean(Tmean_all[ ,daysindx_2020])-mean(Tmean_all[ ,daysindx_1980])
-  Tdiff_2070[i]<-mean(Tmean_all[ ,daysindx_2070])-mean(Tmean_all[ ,daysindx_1980])
+  Tdiff_2070[i]<-mean(Tmean_all[ ,daysindx_2070],na.rm=TRUE)-mean(Tmean_all[ ,daysindx_1980])
   Prratio_2020[i]<-sum(Pr_mean_all[ ,daysindx_2020])/sum(Pr_mean_all[ ,daysindx_1980])
-  Prratio_2070[i]<-sum(Pr_mean_all[ ,daysindx_2070])/sum(Pr_mean_all[ ,daysindx_1980])
+  Prratio_2070[i]<-sum(Pr_mean_all[ ,daysindx_2070],na.rm=TRUE)/sum(Pr_mean_all[ ,daysindx_1980])
   Rhratio_2020[i]<-mean(RHmean_all[ ,daysindx_2020])/mean(RHmean_all[ ,daysindx_1980])
-  Rhratio_2070[i]<-mean(RHmean_all[ ,daysindx_2070])/mean(RHmean_all[ ,daysindx_1980])
+  Rhratio_2070[i]<-mean(RHmean_all[ ,daysindx_2070],na.rm=TRUE)/mean(RHmean_all[ ,daysindx_1980])
   #Shift data in two 30-yr period
   shiftedMettmax_2020_2049[ ,daysindx_1980]<-tmax[ ,(daysindx_1980+730)]+Tdiff_2020[i]
   shiftedMettmin_2020_2049[ ,daysindx_1980]<-tmin[ ,(daysindx_1980+730)]+Tdiff_2020[i]
@@ -113,16 +112,16 @@ save(shiftedMetrhmin_2070_2099,file="SourceData/MACAv2-METDATA_proj/linearshift_
 
 
 #can also start from loading after saving 
-# load("SourceData/MACAv2-METDATA_proj/linearshift_proj/tmax_2020_2049")
-# load("SourceData/MACAv2-METDATA_proj/linearshift_proj/tmin_2020_2049")
-# load("SourceData/MACAv2-METDATA_proj/linearshift_proj/pr_2020_2049")
-# load("SourceData/MACAv2-METDATA_proj/linearshift_proj/rhmax_2020_2049")
-# load("SourceData/MACAv2-METDATA_proj/linearshift_proj/rhmin_2020_2049")
-# load("SourceData/MACAv2-METDATA_proj/linearshift_proj/tmax_2070_2099")
-# load("SourceData/MACAv2-METDATA_proj/linearshift_proj/tmin_2070_2099")
-# load("SourceData/MACAv2-METDATA_proj/linearshift_proj/pr_2070_2099")
-# load("SourceData/MACAv2-METDATA_proj/linearshift_proj/rhmax_2070_2099")
-# load("SourceData/MACAv2-METDATA_proj/linearshift_proj/rhmin_2070_2099")
+ load("SourceData/MACAv2-METDATA_proj/linearshift_proj/tmax_2020_2049")
+ load("SourceData/MACAv2-METDATA_proj/linearshift_proj/tmin_2020_2049")
+ load("SourceData/MACAv2-METDATA_proj/linearshift_proj/pr_2020_2049")
+ load("SourceData/MACAv2-METDATA_proj/linearshift_proj/rhmax_2020_2049")
+ load("SourceData/MACAv2-METDATA_proj/linearshift_proj/rhmin_2020_2049")
+ load("SourceData/MACAv2-METDATA_proj/linearshift_proj/tmax_2070_2099")
+ load("SourceData/MACAv2-METDATA_proj/linearshift_proj/tmin_2070_2099")
+ load("SourceData/MACAv2-METDATA_proj/linearshift_proj/pr_2070_2099")
+ load("SourceData/MACAv2-METDATA_proj/linearshift_proj/rhmax_2070_2099")
+ load("SourceData/MACAv2-METDATA_proj/linearshift_proj/rhmin_2070_2099")
 
 #Then calculate VPD,EDD,GDD
 for (k in 1:2){
@@ -155,11 +154,11 @@ for (k in 1:2){
     m1=1
     m2=1
     for (j in 1:30){
-      k=365
+      n=365
       if (j%%4==0){ 
-        k=366
+        n=366
       }
-      m2<-m1+k-1
+      m2<-m1+n-1
       Tmeantoget<-Tmean[i,c(m1:m2)]
       TMA<-ma(Tmeantoget,21)
       GS_start[i,j]<-which(TMA >= Tthres)[1]
@@ -181,11 +180,11 @@ for (k in 1:2){
     m1=1
     m2=1
     for (j in 1:30){
-      k=365
+      n=365
       if (j%%4==0){ #when exist Feb29
-        k=366
+        n=366
       }
-      m2<-m1+k-1
+      m2<-m1+n-1
       GS_length[(i-1)*30+j]<-GS_end[i,j]-GS_start[i,j]
       index<-c(m1:m2)
       if (!is.na(GS_start[i,j])){
