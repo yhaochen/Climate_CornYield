@@ -8,7 +8,7 @@ Read the source MACA-METDATA netcdf projections and hindcasts and extract the su
 2. Run METrawdata_dataframe.R: 
 Read the source METDATA (observation data), save the extracted data as a matrix, then calculate the weather variables (GDD,EDD,VPD) and save as a dataframe for further use.
 
-3. Run maca-metmodel_dataframe.R: 
+3. Run macametmodel_dataframe.R: 
 Process the MACA-METDATA matrices and save as dataframes for further use.
 
 4. Run meanclimateprojection.R: 
