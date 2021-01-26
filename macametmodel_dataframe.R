@@ -1,15 +1,11 @@
 #Read each climate projection and create the dataframe that includes growing season data
 rm(list = ls())
 graphics.off()
-library(sp)
 library(maps)
 library(maptools)
 library(usmap)
 library(ncdf4)
-library(precintcon)
-library(BMS)
-library(housingData)
-library(binaryLogic)
+
 source("latlong2county.R")
 source("GDDEDD.R")
 #Determine which county each grid is in
@@ -49,10 +45,10 @@ modelnames<-c("MIROC5","MRI-CGCM3","IPSL-CM5B-LR","IPSL-CM5A-LR",
               "HadGEM2-ES365","GFDL-ESM2M","GFDL-ESM2G","CSIRO-Mk3-6-0","bcc-csm1-1",
               "MIROC-ESM", "IPSL-CM5A-MR", "CNRM-CM5","BNU-ESM",
               "MIROC-ESM-CHEM", "inmcm4", "HadGEM2-CC365", "CanESM2", "bcc-csm1-1-m")
-
+dir.create("/storage/work/h/hxy46/Countywise/Metdata/macaprojdataframe",recursive = TRUE)
 #with each climate projection, save the hind/proj yield data of 64 structures
-for (q in 14:length(modelnames)){
-  foldername<-paste("SourceData/MACAv2-METDATA/",modelnames[q],"_proj/",sep="")
+for (q in 1:length(modelnames)){
+  foldername<-paste("SourceData/MACAv2-METDATA_proj/",modelnames[q],"_proj/",sep="")
   load(paste(foldername,"tmax",sep=""))
   load(paste(foldername,"tmin",sep=""))
   load(paste(foldername,"pr",sep=""))

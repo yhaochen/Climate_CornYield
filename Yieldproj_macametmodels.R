@@ -24,7 +24,7 @@ for (i in 1:32){
 
 load("Metdata/hind_bestfit")
 load("Metdata/proj_bestfit")
-load("Metdata/hind_parasample")
+load("Metdata/step")
 load("Metdata/proj_parasample")
 hindyears<-length(hind_fit)
 projyears<-dim(proj_parasample)[1]
@@ -32,8 +32,6 @@ climnum<-dim(proj_parasample)[2]+1
 parasamplenum<-dim(proj_parasample)[3]
 
 #Annual range of 2 uncertainty sources
-annualhindmin<-rowQuantiles(hind_parasample,probs=0)
-annualhindmax<-rowQuantiles(hind_parasample,probs=1)
 annualprojmin<-rowQuantiles(matrix(proj_parasample,nrow=projyears,ncol=climnum*parasamplenum),probs=0.025)
 annualprojmax<-rowQuantiles(matrix(proj_parasample,nrow=projyears,ncol=climnum*parasamplenum),probs=0.975)
 #Annual range of only parametric uncertainty (linear shifted climate in two 30-year periods)
@@ -49,12 +47,10 @@ annualprojmin_2070_2099<-rowMin(proj_linearshifted_parasample_2070_2099)
 png("Plots/time_series.png", width = 1000, height = 618)
 #time series plot 
 par(mar=c(4,5.1,1.6,2.1))
-plot(0,0,xlim = c(1981+3.3,2099-3.3),ylim = c(min(c(annualhindmin,annualprojmin)),max(c(annualhindmax,annualprojmax))),xlab="Year",ylab="Yield anomaly (bush/acre)",type = "n",cex.axis=2,cex.lab=2)
-polygon(c(1981:2012,2012:1981),c(annualhindmax,rev(annualhindmin)),col="darkseagreen1",border=NA) #hindcast para
+plot(0,0,xlim = c(1981+3.3,2099-3.3),ylim = c(min(c(annualprojmin)),max(c(annualprojmax))),xlab="Year",ylab="Yield anomaly (bush/acre)",type = "n",cex.axis=2,cex.lab=2)
+polygon(c(1981:2012,2012:1981),c(hind_fit+step,rev(hind_fit-step)),col="darkseagreen1",border=NA) #hindcast para
 lines(c(1981:2012),hind_fit,col="forestgreen",lwd=2.5) # model best estimate
 polygon(c(2012:2099,2099:2012),c(annualprojmax[7:94],rev(annualprojmin[7:94])),col="lightblue1",border=NA)#para + clim
-#polygon(c(2020:2049,2049:2020),c(annualprojmax_2020_2049,rev(annualprojmin_2020_2049)),col="skyblue",border=NA) # para
-#polygon(c(2070:2099,2099:2070),c(annualprojmax_2070_2099,rev(annualprojmin_2070_2099)),col="skyblue",border=NA) # para
 for (i in 1:(climnum-1)){ #only climate
   lines(c(2012:2099),proj_fit[c(7:94),i],col="blue")
 }
@@ -62,7 +58,7 @@ points(c(1981:2012),meanyield_anomaly,col="black",pch=20,cex=1.6)
 legend(1982,-90,pch = c(20,NA,NA),lwd=c(NA,2,2),lty=c(NA,1,1),
        col=c("black","forestgreen","blue"),
        legend = c("Yield anomaly observation","Best model's hindcasts","Best model's projections"),bty="n",cex=2)
-legend(1983.5,-132, fill=c("darkseagreen1","lightblue1"),
+legend(1983.5,-130, fill=c("darkseagreen1","lightblue1"),
        legend = c("Hindcast window", "95% yield projections uncertainty range (climate + parameter)"),bty="n",cex=2)
 dev.off()
 
@@ -98,7 +94,7 @@ dev.off()
    #all distributions in 2070-2099/2020-2049
    if (k==1){
      boxstep<- -0.02
-     yrange<-c(-0.06,0.2)
+     yrange<-c(-0.06,0.14)
      plotname<-"distribution_2020_2049"
    }
    if (k==2){
@@ -108,7 +104,7 @@ dev.off()
    }
    png(paste("Plots/",plotname,".png"), width = 1000, height = 618)
    par(mar=c(4.5,5.1,1.6,21.1))
-   plot(0,0,xlim = c(min(vect_para_clim,na.rm = TRUE),max(vect_para_clim,na.rm = TRUE)),ylim = yrange,
+   plot(0,0,xlim = c(quantile(vect_para_clim,0.001),quantile(vect_para_clim,0.999)),ylim = yrange,
         xlab="Yield anomaly (bush/acre)",ylab="Density",type = "n",yaxt="n",cex.axis=2,cex.lab=2)
    axis(2,at=seq(0,yrange[2],by=0.025),cex.axis=2) #y axis labels
    points(annualproj_none,0,pch=19)
@@ -133,7 +129,7 @@ dev.off()
    if (k==2){
      mtext(side=4, at=yrange[2], line=1, las=1,"(b). 2070 - 2099",cex=2)
    }
-   legend(min(vect_para_clim),yrange[2],col=c("black","red","forestgreen","blue"),pch=c(19,NA,NA,NA),
+   legend(quantile(vect_para_clim,0.001),yrange[2],col=c("black","red","forestgreen","blue"),pch=c(19,NA,NA,NA),
           lty=c(NA,1,1,1),lwd=c(NA,2,2,2),legend=c("Point estimate","Parameter uncertainty + linear shifted climate",
                                                    "Sampled climate projections best estimates","Sampled parameter + climate uncertainty"),bty="n",cex=1.7)
    dev.off()

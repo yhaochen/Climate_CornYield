@@ -99,6 +99,7 @@ for (i in 1:12){
 }
 
 #Save the shifted data
+dir.create("/storage/work/h/hxy46/Countywise/SourceData/MACAv2-METDATA_proj/linearshift_proj",recursive = TRUE)
 save(shiftedMettmax_2020_2049,file="SourceData/MACAv2-METDATA_proj/linearshift_proj/tmax_2020_2049")
 save(shiftedMettmin_2020_2049,file="SourceData/MACAv2-METDATA_proj/linearshift_proj/tmin_2020_2049")
 save(shiftedMetpr_2020_2049,file="SourceData/MACAv2-METDATA_proj/linearshift_proj/pr_2020_2049")

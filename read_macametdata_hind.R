@@ -38,7 +38,7 @@ years<-c(1980:2005)
 
 # read orgininal data
 for (q in 1:18){
-  dir.create(paste("/storage/work/h/hxy46/Countywise/Data/MACAv2-METDATA_hind/",modelnames[q],"_hind",sep=""),recursive = TRUE)
+  dir.create(paste("/storage/work/h/hxy46/Countywise/SourceData/MACAv2-METDATA_hind/",modelnames[q],"_hind",sep=""),recursive = TRUE)
   tmax<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
   tmin<-matrix(NA,nrow=countynum,ncol=19*365+7*366)
   pr<-matrix(NA,nrow=countynum,ncol=19*365+7*366)

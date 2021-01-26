@@ -2,15 +2,10 @@
 
 rm(list = ls())
 graphics.off()
-library(sp)
 library(maps)
 library(maptools)
 library(ncdf4)
-library(ggplot2)
 library(usmap)
-library(BMS)
-library(housingData)
-library(binaryLogic)
 source("latlong2county.R")
 source("GDDEDD.R")
 
@@ -348,10 +343,17 @@ Data<-data.frame(StateANSI=rep(StateANSI,each=38),countyANSI=rep(CountyANSI,each
                  EDD_GS=EDD_GS,VPD_GS=VPD_GS,Pr_GS=Pr_GS,yield=yield,GS_length=GS_length,area=area)
 Data<-Data[complete.cases(Data), ] #Yield data are 1981-2012
 #calculate yield anomaly based on fixed effects
+Data$GDD_sqr<-Data$GDD_GS^2
+Data$EDD_sqr<-Data$EDD_GS^2
+Data$Tmax_sqr<-Data$Tmax_GS^2
+Data$Tmin_sqr<-Data$Tmin_GS^2
+Data$Pr_sqr<-Data$Pr_GS^2
+Data$VPD_sqr<-Data$VPD_GS^2
 Data$StateANSI<-factor(Data$StateANSI)
 Data$year=Data$year+1978
 Data$year<-factor(Data$year)
-model<-lm(yield~Tmax_GS+Tmin_GS+GDD_GS+EDD_GS+VPD_GS+Pr_GS+fips+year,data=Data)
+model<-lm(yield~GDD_GS+GDD_sqr+EDD_GS+Tmin_GS+Tmin_sqr+
+            Pr_GS+Pr_sqr+VPD_GS+VPD_sqr+fips+year,data=Data) #best model
 Coef<-summary(model)$coefficients
 Data$yield_anomaly<-rep(NA,dim(Data)[1])
 for (i in 1:dim(Data)[1]){

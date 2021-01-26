@@ -102,6 +102,7 @@ upperbound<-hind_fit+step
 lowerbound<-hind_fit-step
 bestestimate<-summary(fullmodel)$coefficient[ ,1]
 bestestimatestd<-summary(fullmodel)$coefficient[ ,2]
+save(step,file="Metdata/step")
 
 #Uncertainty sampling part
 #Set different seeds in each run
