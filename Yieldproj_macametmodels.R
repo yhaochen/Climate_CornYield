@@ -32,17 +32,13 @@ climnum<-dim(proj_parasample)[2]+1
 parasamplenum<-dim(proj_parasample)[3]
 
 #Annual range of 2 uncertainty sources
-annualprojmin<-rowQuantiles(matrix(proj_parasample,nrow=projyears,ncol=climnum*parasamplenum),probs=0.025)
-annualprojmax<-rowQuantiles(matrix(proj_parasample,nrow=projyears,ncol=climnum*parasamplenum),probs=0.975)
+annualprojmin<-rowQuantiles(matrix(proj_parasample,nrow=projyears,ncol=(climnum-1)*parasamplenum),probs=0.025)
+annualprojmax<-rowQuantiles(matrix(proj_parasample,nrow=projyears,ncol=(climnum-1)*parasamplenum),probs=0.975)
 #Annual range of only parametric uncertainty (linear shifted climate in two 30-year periods)
 load("Metdata/proj_linearshifted_bestfit_2020_2049")
 load("Metdata/proj_linearshifted_bestfit_2070_2099")
 load("Metdata/proj_linearshifted_parasample_2020_2049")
 load("Metdata/proj_linearshifted_parasample_2070_2099")
-annualprojmax_2020_2049<-rowMax(proj_linearshifted_parasample_2020_2049)
-annualprojmax_2070_2099<-rowMax(proj_linearshifted_parasample_2070_2099)
-annualprojmin_2020_2049<-rowMin(proj_linearshifted_parasample_2020_2049)
-annualprojmin_2070_2099<-rowMin(proj_linearshifted_parasample_2070_2099)
 
 png("Plots/time_series.png", width = 1000, height = 618)
 #time series plot 
