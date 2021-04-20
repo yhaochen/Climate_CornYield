@@ -1,6 +1,6 @@
 # Climate_CornYield
 
-To run the project and generate the figures (not uploaded yet):
+To run the project and generate the figures:
 
 1. Start with running read_macametdata.R and read_macametdata_hind.R: 
 Read the source MACA-METDATA netcdf projections and hindcasts and extract the subset county level data, save the extracted tmax,tmin,pr,rhmax,rhmin as large matrices. These two scripts are time consuming due to reading large datasets.
