@@ -16,8 +16,8 @@ rowMin<-function(data){
   apply(data,1,min,na.rm=TRUE)
 }
 
-meanyield_anomaly<-rep(NA,32)
-for (i in 1:32){
+meanyield_anomaly<-rep(NA,40)
+for (i in 1:40){
   indx<-which(Data$year==levels(Data$year)[i])
   meanyield_anomaly[i]<-weighted.mean(Data$yield_anomaly[indx],na.rm=T,weight=Data$area)
 }
@@ -43,18 +43,18 @@ load("Metdata/proj_linearshifted_parasample_2070_2099")
 png("Plots/time_series.png", width = 1000, height = 618)
 #time series plot 
 par(mar=c(4,5.1,1.6,2.1))
-plot(0,0,xlim = c(1981+3.3,2099-3.3),ylim = c(min(c(annualprojmin)),max(c(annualprojmax))),xlab="Year",ylab="Yield anomaly (bush/acre)",type = "n",cex.axis=2,cex.lab=2)
-polygon(c(1981:2012,2012:1981),c(hind_fit+step,rev(hind_fit-step)),col="darkseagreen1",border=NA) #hindcast para
-lines(c(1981:2012),hind_fit,col="forestgreen",lwd=2.5) # model best estimate
-polygon(c(2012:2099,2099:2012),c(annualprojmax[7:94],rev(annualprojmin[7:94])),col="lightblue1",border=NA)#para + clim
+plot(0,0,xlim = c(1979+3.3,2099-3.3),ylim = c(min(c(annualprojmin)),max(c(annualprojmax))),xlab="Year",ylab="Yield anomaly (bush/acre)",type = "n",cex.axis=2,cex.lab=2)
+polygon(c(1979:2018,2018:1979),c(hind_fit+step,rev(hind_fit-step)),col="darkseagreen1",border=NA) #hindcast para
+lines(c(1979:2018),hind_fit,col="forestgreen",lwd=2.5) # model best estimate
+polygon(c(2018:2099,2099:2018),c(annualprojmax[13:94],rev(annualprojmin[13:94])),col="lightblue1",border=NA)#para + clim
 for (i in 1:(climnum-1)){ #only climate
-  lines(c(2012:2099),proj_fit[c(7:94),i],col="blue")
+  lines(c(2018:2099),proj_fit[c(13:94),i],col="blue")
 }
-points(c(1981:2012),meanyield_anomaly,col="black",pch=20,cex=1.6)
-legend(1982,-90,pch = c(20,NA,NA),lwd=c(NA,2,2),lty=c(NA,1,1),
+points(c(1979:2018),meanyield_anomaly,col="black",pch=20,cex=1.6)
+legend(1980,-75,pch = c(20,NA,NA),lwd=c(NA,2,2),lty=c(NA,1,1),
        col=c("black","forestgreen","blue"),
        legend = c("Yield anomaly observation","Best model's hindcasts","Best model's projections"),bty="n",cex=2)
-legend(1983.5,-130, fill=c("darkseagreen1","lightblue1"),
+legend(1981.5,-110, fill=c("darkseagreen1","lightblue1"),
        legend = c("Hindcast window", "95% yield projections uncertainty range (climate + parameter)"),bty="n",cex=2)
 dev.off()
 
@@ -99,7 +99,7 @@ dev.off()
      plotname<-"distribution_2070_2099"
    }
    png(paste("Plots/",plotname,".png"), width = 1000, height = 618)
-   par(mar=c(4.5,5.1,1.6,21.1))
+   par(mar=c(4.5,5.1,3,21.1))
    plot(0,0,xlim = c(quantile(vect_para_clim,0.001),quantile(vect_para_clim,0.999)),ylim = yrange,
         xlab="Yield anomaly (bush/acre)",ylab="Density",type = "n",yaxt="n",cex.axis=2,cex.lab=2)
    axis(2,at=seq(0,yrange[2],by=0.025),cex.axis=2) #y axis labels
@@ -120,10 +120,12 @@ dev.off()
      mtext(side=4, at=i*boxstep, line=1,text[which(cumu_uncertainty==sorted[1,i])],las=1,col=color[which(cumu_uncertainty==sorted[1,i])],cex=1.5)
    }
    if (k==1){
-     mtext(side=4, at=yrange[2], line=1, las=1,"(a). 2020 - 2049",cex=2)
+     mtext(side=3, at=quantile(vect_para_clim,0.001), line=1, las=1,"a",cex=2)
+     mtext(side=3, at=quantile(vect_para_clim,0.3), line=1, las=1,"2020 - 2049",cex=2)
    }
    if (k==2){
-     mtext(side=4, at=yrange[2], line=1, las=1,"(b). 2070 - 2099",cex=2)
+     mtext(side=3, at=quantile(vect_para_clim,0.001), line=1, las=1,"b",cex=2)
+     mtext(side=3, at=quantile(vect_para_clim,0.3), line=1, las=1,"2070 - 2099",cex=2)
    }
    legend(quantile(vect_para_clim,0.001),yrange[2],col=c("black","red","forestgreen","blue"),pch=c(19,NA,NA,NA),
           lty=c(NA,1,1,1),lwd=c(NA,2,2,2),legend=c("Point estimate","Parameter uncertainty + linear shifted climate",

@@ -11,10 +11,10 @@ source("GDDEDD.R")
 
 #first read daily Tmax, Tmin, RHmax, RHmin, Pr
 
-#Metdata obs: 1979-2016
+#Metdata obs: 1979-2018
 #
 #Determine which county each grid is in 
-file<-nc_open("/gpfs/group/kzk10/default/public/METDATA/raw/tmmx_1980.nc")
+file<-nc_open("/gpfs/group/kzk10/default/public/UofI_MetData/raw/tmmx_1980.nc")
 grid_lon<-as.vector(file$dim$lon$vals)
 grid_lat<-as.vector(file$dim$lat$vals)
 dim_lon<-length(grid_lon)
@@ -30,22 +30,24 @@ countys_sp <- map2SpatialPolygons(countys, IDs=IDs,proj4string=CRS("+proj=longla
 countyNames <- sapply(countys_sp@polygons, function(x) x@ID)
 countytoget<-countyNames[c(1:67,83:157,288:290,359:517,562:854,960:1143,1160:1183,1198:1564,1742:1762,1796:1957,2011:2098,2212:2278,2284:2329,2396:2490,2788:2887,2927:3053)]#PA,NY,NJ,MD,DE,DC,NC,VA,SC,WV,OH,MI,GA,KY,IN,IL,AL,TN,WI,MS,MN,MO,LA,AR,IA
 countynum<-length(countytoget)
-tmax<-matrix(NA,nrow=countynum,ncol=28*365+10*366)
-tmin<-matrix(NA,nrow=countynum,ncol=28*365+10*366)
-pr<-matrix(NA,nrow=countynum,ncol=28*365+10*366)
-rhmax<-matrix(NA,nrow=countynum,ncol=28*365+10*366)
-rhmin<-matrix(NA,nrow=countynum,ncol=28*365+10*366)
+
+tmax<-matrix(NA,nrow=countynum,ncol=30*365+10*366)
+tmin<-matrix(NA,nrow=countynum,ncol=30*365+10*366)
+pr<-matrix(NA,nrow=countynum,ncol=30*365+10*366)
+rhmax<-matrix(NA,nrow=countynum,ncol=30*365+10*366)
+rhmin<-matrix(NA,nrow=countynum,ncol=30*365+10*366)
 
 m1<-1 #used to record which columns to write in each loop
 m2<-1
+
 dir.create("/storage/work/h/hxy46/Countywise/Metdata/Metdataframe",recursive = TRUE)
-for (i in 1:38){
+for (i in 1:40){
   #read data from 1979 to 2016
-  Tmax_file<-paste("/gpfs/group/kzk10/default/public/METDATA/raw/tmmx_",i+1978,".nc",sep="")
-  Tmin_file<-paste("/gpfs/group/kzk10/default/public/METDATA/raw/tmmn_",i+1978,".nc",sep="")
-  Pr_file<-paste("/gpfs/group/kzk10/default/public/METDATA/raw/pr_",i+1978,".nc",sep="")
-  RHmax_file<-paste("/gpfs/group/kzk10/default/public/METDATA/raw/rmax_",i+1978,".nc",sep="")
-  RHmin_file<-paste("/gpfs/group/kzk10/default/public/METDATA/raw/rmin_",i+1978,".nc",sep="")
+  Tmax_file<-paste("/gpfs/group/kzk10/default/public/UofI_MetData/raw/tmmx_",i+1978,".nc",sep="")
+  Tmin_file<-paste("/gpfs/group/kzk10/default/public/UofI_MetData/raw/tmmn_",i+1978,".nc",sep="")
+  Pr_file<-paste("/gpfs/group/kzk10/default/public/UofI_MetData/raw/pr_",i+1978,".nc",sep="")
+  RHmax_file<-paste("/gpfs/group/kzk10/default/public/UofI_MetData/raw/rmax_",i+1978,".nc",sep="")
+  RHmin_file<-paste("/gpfs/group/kzk10/default/public/UofI_MetData/raw/rmin_",i+1978,".nc",sep="")
   
   mettmax<-nc_open(Tmax_file)
   mettmin<-nc_open(Tmin_file)
@@ -61,11 +63,11 @@ for (i in 1:38){
   m2<-m1+k-1
   
   #determine which grids to get based on which counties we need, and calculate county average
-  Tmax<-ncvar_get(mettmax,varid = "air_temperature",start = c(1,595,1),count = c(dim_lat,dim_lon-594,k)) 
-  Tmin<-ncvar_get(mettmin,varid = "air_temperature",start = c(1,595,1),count = c(dim_lat,dim_lon-594,k))
-  Pr<-ncvar_get(metpr,varid = "precipitation_amount",start = c(1,595,1),count = c(dim_lat,dim_lon-594,k))
-  RHmax<-ncvar_get(metrhmax,varid = "relative_humidity",start = c(1,595,1),count = c(dim_lat,dim_lon-594,k))
-  RHmin<-ncvar_get(metrhmin,varid = "relative_humidity",start = c(1,595,1),count = c(dim_lat,dim_lon-594,k))
+  Tmax<-ncvar_get(mettmax,varid = "air_temperature",start = c(595,1,1),count = c(dim_lon-594,dim_lat,k)) 
+  Tmin<-ncvar_get(mettmin,varid = "air_temperature",start = c(595,1,1),count = c(dim_lon-594,dim_lat,k))
+  Pr<-ncvar_get(metpr,varid = "precipitation_amount",start = c(595,1,1),count = c(dim_lon-594,dim_lat,k))
+  RHmax<-ncvar_get(metrhmax,varid = "relative_humidity",start = c(595,1,1),count = c(dim_lon-594,dim_lat,k))
+  RHmin<-ncvar_get(metrhmin,varid = "relative_humidity",start = c(595,1,1),count = c(dim_lon-594,dim_lat,k))
   
   for (n in 1:countynum){
     gridstoget<-which(countyname==countytoget[n],arr.ind = T)
@@ -78,11 +80,11 @@ for (i in 1:38){
     
     for (j in 1:gridnum){
       #Tmaxgrid is the daily data of Tmax in given county given year
-      Tmaxgrid[j, ]<-Tmax[gridstoget[j,1],gridstoget[j,2]-594, ]-273.15 #dimension=(lat,lon)
-      Tmingrid[j, ]<-Tmin[gridstoget[j,1],gridstoget[j,2]-594, ]-273.15
-      Prgrid[j, ]<-Pr[gridstoget[j,1],gridstoget[j,2]-594, ]
-      RHmaxgrid[j, ]<-RHmax[gridstoget[j,1],gridstoget[j,2]-594, ]
-      RHmingrid[j, ]<-RHmin[gridstoget[j,1],gridstoget[j,2]-594, ]
+      Tmaxgrid[j, ]<-Tmax[gridstoget[j,2]-594,gridstoget[j,1], ]-273.15 #dimension=(lon,lat)
+      Tmingrid[j, ]<-Tmin[gridstoget[j,2]-594,gridstoget[j,1], ]-273.15
+      Prgrid[j, ]<-Pr[gridstoget[j,2]-594,gridstoget[j,1], ]
+      RHmaxgrid[j, ]<-RHmax[gridstoget[j,2]-594,gridstoget[j,1], ]
+      RHmingrid[j, ]<-RHmin[gridstoget[j,2]-594,gridstoget[j,1], ]
     }
     
     Tmaxgrid<-Tmaxgrid[complete.cases(Tmaxgrid), ]
@@ -114,21 +116,21 @@ save(rhmin,file="Metdata/Metdataframe/Metrhmin")
 
 #second calculate VPD, GDD, EDD
 # 
-# load("Metdata/Metdataframe/Metpr")
-# load("Metdata/Metdataframe/Mettmax")
-# load("Metdata/Metdataframe/Mettmin")
-# load("Metdata/Metdataframe/Metrhmax")
-# load("Metdata/Metdataframe/Metrhmin")
+ load("Metdata/Metdataframe/Metpr")
+ load("Metdata/Metdataframe/Mettmax")
+ load("Metdata/Metdataframe/Mettmin")
+ load("Metdata/Metdataframe/Metrhmax")
+ load("Metdata/Metdataframe/Metrhmin")
 
 RHmean<-(rhmax+rhmin)/2
 Tmean<-(tmax+tmin)/2
 e_s<-6.112*exp((17.269*Tmean)/(Tmean-237.3)) #saturated vapor pressure (hPa)
 VPD<-e_s*(1-RHmean/100)
 
-GDD<-matrix(NA,nrow=countynum,ncol=28*365+10*366)
-EDD<-matrix(NA,nrow=countynum,ncol=28*365+10*366)
+GDD<-matrix(NA,nrow=countynum,ncol=30*365+10*366)
+EDD<-matrix(NA,nrow=countynum,ncol=30*365+10*366)
 for (i in 1: countynum){
-  for (j in 1: (28*365+10*366)){
+  for (j in 1: (30*365+10*366)){
     GDD[i,j]<-GDDEDD(tmax[i,j],tmin[i,j])[1]
     EDD[i,j]<-GDDEDD(tmax[i,j],tmin[i,j])[2]
   }
@@ -159,14 +161,14 @@ su <- function(arr, n){  #cumulative sum
 }
 
 Tthres<-10
-GS_start<-matrix(NA,nrow=countynum,ncol=38)
-GS_end<-matrix(NA,nrow=countynum,ncol=38)
+GS_start<-matrix(NA,nrow=countynum,ncol=40)
+GS_end<-matrix(NA,nrow=countynum,ncol=40)
 m1=1
 m2=1
 for (i in 1:countynum){
   m1=1
   m2=1
-  for (j in 1:38){
+  for (j in 1:40){
     k=365
     if (j%%4==2){ #when exist Feb29
       k=366
@@ -272,76 +274,79 @@ StateANSI<-as.numeric(substr(ANSI,1,2))
 save(ANSI,file="ANSI")
 save(CountyANSI,file="CountyANSI")
 save(StateANSI,file="StateANSI")
+load("ANSI")
+load("CountyANSI")
+load("StateANSI")
 
-Tmax_GS<-rep(NA,countynum*38)
-Tmin_GS<-rep(NA,countynum*38)
-GDD_GS<-rep(NA,countynum*38)
-EDD_GS<-rep(NA,countynum*38)
-VPD_GS<-rep(NA,countynum*38)
-Pr_GS<-rep(NA,countynum*38)
-GS_length<-rep(NA,countynum*38)
+Tmax_GS<-rep(NA,countynum*40)
+Tmin_GS<-rep(NA,countynum*40)
+GDD_GS<-rep(NA,countynum*40)
+EDD_GS<-rep(NA,countynum*40)
+VPD_GS<-rep(NA,countynum*40)
+Pr_GS<-rep(NA,countynum*40)
+GS_length<-rep(NA,countynum*40)
 
 for (i in 1:countynum){
   m1=1
   m2=1
-  for (j in 1:38){
+  for (j in 1:40){
     k=365
     if (j%%4==2){ #when exist Feb29
       k=366
     }
     m2<-m1+k-1
-    GS_length[(i-1)*38+j]<-GS_end[i,j]-GS_start[i,j]
+    GS_length[(i-1)*40+j]<-GS_end[i,j]-GS_start[i,j]
     index<-c(m1:m2)
     if (!is.na(GS_start[i,j])){
       GSindex<-index[GS_start[i,j]:GS_end[i,j]]
-      Tmax_GS[(i-1)*38+j]<-mean(tmax[i,GSindex])
-      Tmin_GS[(i-1)*38+j]<-mean(tmin[i,GSindex])
-      GDD_GS[(i-1)*38+j]<-sum(GDD[i,GSindex])
-      EDD_GS[(i-1)*38+j]<-sum(EDD[i,GSindex])
-      VPD_GS[(i-1)*38+j]<-sum(VPD[i,GSindex])
-      Pr_GS[(i-1)*38+j]<-sum(pr[i,GSindex])
+      Tmax_GS[(i-1)*40+j]<-mean(tmax[i,GSindex])
+      Tmin_GS[(i-1)*40+j]<-mean(tmin[i,GSindex])
+      GDD_GS[(i-1)*40+j]<-sum(GDD[i,GSindex])
+      EDD_GS[(i-1)*40+j]<-sum(EDD[i,GSindex])
+      VPD_GS[(i-1)*40+j]<-sum(VPD[i,GSindex])
+      Pr_GS[(i-1)*40+j]<-sum(pr[i,GSindex])
     }
     m1=m2+1
   }
 }
 S<-read.table("harvest_area.csv",header=TRUE,sep=",")
-area<-rep(NA,38*countynum)
+area<-rep(NA,40*countynum)
 for (i in 1:countynum){
   stateindex<-which(S$State.ANSI==StateANSI[i])
   countyindex<-which(S$County.ANSI==CountyANSI[i])
   yearindex<-intersect(stateindex,countyindex)
   year<-S$Year[yearindex]
-  areatoget<-rep(NA,38)
-  for (j in 1:38){
+  areatoget<-rep(NA,40)
+  for (j in 1:40){
     ind<-which(year==1978+j)
     if (!identical(ind,integer(0))){
       areatoget[j]<-S$Value[yearindex[ind]]
     }
   }
-  area[((i-1)*38+1):(i*38)]<-areatoget
+  area[((i-1)*40+1):(i*40)]<-areatoget
 }
 W<-read.table("yielddata.csv",header=TRUE,sep=",")
-yield_anomaly<-rep(NA,38*countynum)
-yield<-rep(NA,38*countynum)
+yield_anomaly<-rep(NA,40*countynum)
+yield<-rep(NA,40*countynum)
 for (i in 1:countynum){
   stateindex<-which(W$State.ANSI==StateANSI[i])
   countyindex<-which(W$County.ANSI==CountyANSI[i])
   yearindex<-intersect(stateindex,countyindex)
   year<-W$Year[yearindex]
-  yieldtoget<-rep(NA,38)
-  for (j in 1:38){
+  yieldtoget<-rep(NA,40)
+  for (j in 1:40){
     ind<-which(year==1978+j)
     if (!identical(ind,integer(0))){
       yieldtoget[j]<-W$Value[yearindex[ind]]
     }
   }
-  yield[((i-1)*38+1):(i*38)]<-yieldtoget
+  yield[((i-1)*40+1):(i*40)]<-yieldtoget
 }
 
-Data<-data.frame(StateANSI=rep(StateANSI,each=38),countyANSI=rep(CountyANSI,each=38),fips=rep(ANSI,each=38),
-                 year=rep(c(1:38),countynum),Tmax_GS=Tmax_GS,Tmin_GS=Tmin_GS, GDD_GS=GDD_GS,
+Data<-data.frame(StateANSI=rep(StateANSI,each=40),countyANSI=rep(CountyANSI,each=40),fips=rep(ANSI,each=40),
+                 year=rep(c(1:40),countynum),Tmax_GS=Tmax_GS,Tmin_GS=Tmin_GS, GDD_GS=GDD_GS,
                  EDD_GS=EDD_GS,VPD_GS=VPD_GS,Pr_GS=Pr_GS,yield=yield,GS_length=GS_length,area=area)
-Data<-Data[complete.cases(Data), ] #Yield data are 1981-2012
+Data<-Data[complete.cases(Data), ] #Yield data are 1979-2018
 #calculate yield anomaly based on fixed effects
 Data$GDD_sqr<-Data$GDD_GS^2
 Data$EDD_sqr<-Data$EDD_GS^2
