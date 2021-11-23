@@ -5,6 +5,8 @@ To run the project and generate the figures:
 1. Start with running read_macametdata.R and read_macametdata_hind.R: 
 Read the source MACA-METDATA netcdf projections and hindcasts and extract the subset county level data, save the extracted tmax,tmin,pr,rhmax,rhmin as large matrices. These two scripts are time consuming due to reading large datasets.
 
+*read_macametdata_par.R is a parallel version using foreach as comparison.
+
 2. Run METrawdata_dataframe.R: 
 Read the source METDATA (observation data), save the extracted data as a matrix, then calculate the weather variables (GDD,EDD,VPD) and save as a dataframe for further use.
 
