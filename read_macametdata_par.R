@@ -11,6 +11,7 @@ library(BMS)
 library(housingData)
 library(binaryLogic)
 library(foreach)
+library(doParallel)
 source("latlong2county.R")
 source("GDDEDD.R")
 
@@ -150,3 +151,5 @@ save(tmin,file=paste("SourceData/MACAv2-METDATA_proj_par/",modelnames[q],"_proj/
 save(rhmax,file=paste("SourceData/MACAv2-METDATA_proj_par/",modelnames[q],"_proj/rhmax",sep=""))
 save(rhmin,file=paste("SourceData/MACAv2-METDATA_proj_par/",modelnames[q],"_proj/rhmin",sep=""))
 }
+
+
