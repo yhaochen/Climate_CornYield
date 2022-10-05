@@ -4,17 +4,9 @@ graphics.off()
 
 #directly load the valid parameter samples
 load("Metdata/valid_samples")
-hindyear<-32
-projyear<-94
 parasamplenum<-length(Para)
 
 load("Metdata/Metdataframe/Data_Metobs")
-Data$GDD_sqr<-Data$GDD_GS^2
-Data$EDD_sqr<-Data$EDD_GS^2
-Data$Tmax_sqr<-Data$Tmax_GS^2
-Data$Tmin_sqr<-Data$Tmin_GS^2
-Data$Pr_sqr<-Data$Pr_GS^2
-Data$VPD_sqr<-Data$VPD_GS^2
 #for the additional linear shifted climate proj (2020-2049; 2070-2099)
 proj_linearshifted_fit_2020_2049<-rep(NA,30)
 proj_linearshifted_parasample_2020_2049<-matrix(NA,nrow=30,ncol=parasamplenum)
@@ -22,7 +14,7 @@ proj_linearshifted_fit_2070_2099<-rep(NA,30)
 proj_linearshifted_parasample_2070_2099<-matrix(NA,nrow=30,ncol=parasamplenum)
 
 model<-lm(yield_anomaly~GDD_GS+GDD_sqr+EDD_GS+EDD_sqr+Tmax_GS+Tmax_sqr+Tmin_GS+Tmin_sqr+
-                Pr_GS+Pr_sqr+VPD_GS+VPD_sqr,data=Data)
+                Pr_GS+Pr_sqr+VPD_GS+VPD_sqr,data=Data,weights = area) #full model
 variablenames<-variable.names(model)
 variablenum<-length(variablenames)
 #linearshifted proj

@@ -42,7 +42,7 @@ m2<-1
 
 dir.create("/storage/work/h/hxy46/Countywise/Metdata/Metdataframe",recursive = TRUE)
 for (i in 1:40){
-  #read data from 1979 to 2016
+  #read data from 1979 to 2018
   Tmax_file<-paste("/gpfs/group/kzk10/default/public/UofI_MetData/raw/tmmx_",i+1978,".nc",sep="")
   Tmin_file<-paste("/gpfs/group/kzk10/default/public/UofI_MetData/raw/tmmn_",i+1978,".nc",sep="")
   Pr_file<-paste("/gpfs/group/kzk10/default/public/UofI_MetData/raw/pr_",i+1978,".nc",sep="")
@@ -357,20 +357,5 @@ Data$VPD_sqr<-Data$VPD_GS^2
 Data$StateANSI<-factor(Data$StateANSI)
 Data$year=Data$year+1978
 Data$year<-factor(Data$year)
-model<-lm(yield~GDD_GS+GDD_sqr+EDD_GS+Tmin_GS+Tmin_sqr+
-            Pr_GS+Pr_sqr+VPD_GS+VPD_sqr+fips+year,data=Data) #best model
-Coef<-summary(model)$coefficients
-Data$yield_anomaly<-rep(NA,dim(Data)[1])
-for (i in 1:dim(Data)[1]){
-  row_year<-which(row.names(Coef)==paste("year",Data$year[i],sep=""))
-  if (length(row_year)==0){
-    yeareffect<-0
-  } else{
-    yeareffect<-Coef[row_year,1]
-  }
-  Data$yield_anomaly[i]<-Data$yield[i]-yeareffect
-}
-Data$yield_anomaly<-Data$yield_anomaly-weighted.mean(Data$yield_anomaly,na.rm=T,w = Data$area)
+Data$area <- as.numeric(gsub(",", "", Data$area))
 save(Data,file = "Metdata/Metdataframe/Data_Metobs")
-
-

@@ -41,7 +41,7 @@ for (k in 1:2){
 }
 
 
-png("Plots/3-layer.png", width = 1000, height = 720)
+png("Plots/3-layer_new.png", width = 1000, height = 720)
 #3-layer std
 par(mfrow=c(2,1))
 par(mar=c(4.5,5.1,1.6,2.1))

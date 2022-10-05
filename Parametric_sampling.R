@@ -35,10 +35,9 @@ modelnames<-c("MIROC5","MRI-CGCM3","IPSL-CM5B-LR","IPSL-CM5A-LR",
 
 #Metdata observation
 load("Metdata/Metdataframe/Data_Metobs")
-Data$StateANSI<-factor(Data$StateANSI)
 #sampling number in each run (too large would cause memory issue)
 parasamplenum<-10000000
-stepwidth<-c(10,10,10,50,50,10,10,10,10,10,10,10,10) #sample parameters range: defined by +- standard deviations
+stepwidth<-c(rep(15,9),rep(50,2),rep(15,2)) #sample parameters range: defined by +- standard deviations
 hindyear<-40
 projyear<-94
 modelnum<-length(modelnames)
@@ -59,16 +58,12 @@ for (i in 1:hindyear){
   meanyield_anomaly[i]<-weighted.mean(Data$yield_anomaly[indx],na.rm=T,w = Data$area[indx])
 } 
 #best model and full model regression
-Data$GDD_sqr<-Data$GDD_GS^2
-Data$EDD_sqr<-Data$EDD_GS^2
-Data$Tmax_sqr<-Data$Tmax_GS^2
-Data$Tmin_sqr<-Data$Tmin_GS^2
-Data$Pr_sqr<-Data$Pr_GS^2
-Data$VPD_sqr<-Data$VPD_GS^2
-model<-lm(yield_anomaly~GDD_GS+GDD_sqr+EDD_GS+Tmin_GS+Tmin_sqr+
-            Pr_GS+Pr_sqr+VPD_GS+VPD_sqr,data=Data) #best model
+model<-lm(yield_anomaly~GDD_GS+GDD_sqr+EDD_GS+EDD_sqr+Tmax_GS+Tmin_GS+Tmin_sqr
+            +VPD_GS,weights = area,data=Data) #best model
+
 fullmodel<-lm(yield_anomaly~GDD_GS+GDD_sqr+EDD_GS+EDD_sqr+Tmax_GS+Tmax_sqr+Tmin_GS+Tmin_sqr+
-                Pr_GS+Pr_sqr+VPD_GS+VPD_sqr,data=Data)
+                Pr_GS+Pr_sqr+VPD_GS+VPD_sqr,weights = area,data=Data) #full model
+
 variablenames<-variable.names(fullmodel)
 variablenum<-length(variablenames)
 #which column of Data corresponds to each parameter
@@ -81,10 +76,8 @@ hind<-predict(model,Data)
 Besthind<-data.frame(yield_anomaly=hind,area=Data$area)
 hind_fit<-rep(NA,hindyear)
 
+
 #calculate the annual variables in each year to save calculation time, and save the best hindcast fit
-variables<-data.frame(Intercept=rep(1,hindyear),GDD=rep(NA,hindyear),GDD_sqr=rep(NA,hindyear),EDD=rep(NA,hindyear),EDD_sqr=rep(NA,hindyear),
-                      Tmax=rep(NA,hindyear),Tmax_sqr=rep(NA,hindyear),Tmin=rep(NA,hindyear),Tmin_sqr=rep(NA,hindyear),
-                      Pr=rep(NA,hindyear),Pr_sqr=rep(NA,hindyear),VPD=rep(NA,hindyear),VPD_sqr=rep(NA,hindyear))
 variables<-matrix(NA,nrow=40,ncol=13)
 variables[ ,1]<-1
 for (k in 1:hindyear){
@@ -97,7 +90,7 @@ for (k in 1:hindyear){
 save(hind_fit,file="Metdata/hind_bestfit")
 
 difference<-abs(hind_fit-meanyield_anomaly)
-step<-quantile(difference,0.95)
+step<-max(difference)*1.2
 upperbound<-hind_fit+step
 lowerbound<-hind_fit-step
 bestestimate<-summary(fullmodel)$coefficient[ ,1]
@@ -106,7 +99,7 @@ save(step,file="Metdata/step")
 
 #Uncertainty sampling part
 #Set different seeds in each run
-for (trial in 405:456){
+for (trial in 1:2000){
   set.seed(trial)
   #Latin hypercube sampling in a range for all parameters defined above
   MCpara<-randomLHS(parasamplenum,variablenum) #range [0,1]
@@ -158,97 +151,38 @@ for (trial in 405:456){
   }
 }
 
-#combind all files into a large one
- num<-c(1:1000)
- library(abind)
- for (i in 1:456){
-   paralistname<-paste("Metdata/samples/valid_samples/para",num[i],sep="")
-   load(paralistname)
-   if (i==1){
-     Para<-MCpara
-   } else{
-     Para<-append(Para,MCpara)
-   }
-   
-   hindname<-paste("Metdata/samples/hind_parasample/hind",num[i],sep="")
-   load(hindname)
-   if (i==1){
-     Hind<-hind_parasample
-   } else{
-     Hind<-cbind(Hind,hind_parasample)
-   }
-   
-   projname<-paste("Metdata/samples/proj_parasample/proj",num[i],sep="")
-   load(projname)
-   if (i==1){
-     Proj<-proj_parasample
-   } else{
-     Proj<-abind(Proj,proj_parasample,along=3)
-   }
- }
+# combine all files into a large one
+num<-c(1:2000)
+library(abind)
+for (i in num){
+  paralistname<-paste("Metdata/samples/valid_samples/para",num[i],sep="")
+  load(paralistname)
+  if (i==1){
+    Para<-MCpara
+  } else{
+    Para<-append(Para,MCpara)
+  }
 
- 
- for (i in 457:1000){
-   paralistname<-paste("Metdata/samples/valid_samples/para",num[i],sep="")
-   load(paralistname)
-   if (i==1){
-     Para<-MCpara
-   } else{
-     Para<-append(Para,MCpara)
-   }
-   hind_parasample<-variables %*% matrix(unlist(MCpara),nrow=13,byrow=FALSE)
-   Hind<-cbind(Hind,hind_parasample)
-   
-   
-   projname<-paste("Metdata/samples/proj_parasample/proj",num[i],sep="")
-   load(projname)
-   if (i==1){
-     Proj<-proj_parasample
-   } else{
-     Proj<-abind(Proj,proj_parasample,along=3)
-   }
- }
- save(Para,file="Metdata/valid_samples")
- hind_parasample<-Hind
- proj_parasample<-Proj
- save(hind_parasample,file="Metdata/hind_parasample")
- save(proj_parasample,file="Metdata/proj_parasample")
- 
- 
- 
- for (i in 1:32){
-   indx<-which(Data$year==levels(Data$year)[i+2])
-   if (i==1){
-     old_indx<-indx
-   }
-   old_indx<-append(old_indx,indx)
- }
+  hindname<-paste("Metdata/samples/hind_parasample/hind",num[i],sep="")
+  load(hindname)
+  if (i==1){
+    Hind<-hind_parasample
+  } else{
+    Hind<-cbind(Hind,hind_parasample)
+  }
 
- old_model<-model<-lm(yield_anomaly~GDD_GS+GDD_sqr+EDD_GS+Tmin_GS+Tmin_sqr+
-                        Pr_GS+Pr_sqr+VPD_GS+VPD_sqr,data=Data[old_indx, ]) 
- old_fit<-c(-0.8699407,3.8729372,-6.9691059,1.0510181,1.4837100,-4.2384899,
-            -7.6086790,-15.1707768,3.6049754,5.6470485,-0.3883320,6.3727977,
-            -0.3235119,3.0485193,1.9649107,3.5188601,5.3067566,3.5163875,
-            1.3933228,6.0683284,5.9629284,-1.4350786,5.9281361,8.4526365,
-            3.5307753,6.3300494,-2.6024171,6.9728213,11.7803955,-4.3948945,
-            -20.7319639,-25.9410716)
- old_proj<-predict(old_model,Data)
- old_proj_annual<-rep(NA,8)
- for (i in 1:8){
-   j<-i
-   if (i>2){
-     j<-i+32
-   }
-   indx<-which(Data$year==levels(Data$year)[j])
-   old_proj_annual[i]<-weighted.mean(old_proj[indx],na.rm=T,w = Data$area[indx])
- }
- years<-c(1979:2018)
- par(mar=c(4,5.1,1.6,2.1))
- plot(years,hind_fit,type="l",xlab="Year",ylab="Yield anomaly (bu/acre)",cex.axis=1.8,cex.lab=1.8,lwd=2)
- points(years,hind_fit,pch=20)
- lines(c(1981:2012),old_fit,type = "l",col="blue")
- points(c(1981:2012),old_fit,pch=20,col="blue",lwd=2)
- points(c(1979:1980,2013:2018),old_proj_annual,col="red",pch=20)
- legend("bottomleft",col=c("black","blue","red"),lty=c(1,1,NA),lwd=c(2,2,NA),pch=c(NA,NA,20),bty="n",
-        legend=c("Best fit with 40-year data","Best fit with 32-year data"),cex=1.8)
- 
+  projname<-paste("Metdata/samples/proj_parasample/proj",num[i],sep="")
+  load(projname)
+  if (i==1){
+    Proj<-proj_parasample
+  } else{
+    Proj<-abind(Proj,proj_parasample,along=3)
+  }
+}
+
+save(Para,file="Metdata/valid_samples")
+hind_parasample<-Hind
+proj_parasample<-Proj
+save(hind_parasample,file="Metdata/hind_parasample")
+save(proj_parasample,file="Metdata/proj_parasample")
+

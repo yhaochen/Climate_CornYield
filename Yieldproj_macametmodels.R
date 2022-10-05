@@ -6,7 +6,6 @@ library(matrixStats)
 
 #Metdata observation
 load("Metdata/Metdataframe/Data_Metobs")
-Data$StateANSI<-factor(Data$StateANSI)
 
 rowMax<-function(data){
   apply(data,1,max,na.rm=TRUE)
@@ -19,7 +18,7 @@ rowMin<-function(data){
 meanyield_anomaly<-rep(NA,40)
 for (i in 1:40){
   indx<-which(Data$year==levels(Data$year)[i])
-  meanyield_anomaly[i]<-weighted.mean(Data$yield_anomaly[indx],na.rm=T,weight=Data$area)
+  meanyield_anomaly[i]<-weighted.mean(Data$yield_anomaly[indx],na.rm=T,w=Data$area[indx])
 }
 
 load("Metdata/hind_bestfit")
@@ -40,10 +39,10 @@ load("Metdata/proj_linearshifted_bestfit_2070_2099")
 load("Metdata/proj_linearshifted_parasample_2020_2049")
 load("Metdata/proj_linearshifted_parasample_2070_2099")
 
-png("Plots/time_series.png", width = 1000, height = 618)
+png("Plots/time_series_new.png", width = 1000, height = 618)
 #time series plot 
 par(mar=c(4,5.1,1.6,2.1))
-plot(0,0,xlim = c(1979+3.3,2099-3.3),ylim = c(min(c(annualprojmin)),max(c(annualprojmax))),xlab="Year",ylab="Yield anomaly (bush/acre)",type = "n",cex.axis=2,cex.lab=2)
+plot(0,0,xlim = c(1979+3.3,2099-3.3),ylim = c(min(annualprojmin),max(annualprojmax,hind_fit+step)),xlab="Year",ylab="Yield anomaly (bushel/acre)",type = "n",cex.axis=2,cex.lab=2)
 polygon(c(1979:2018,2018:1979),c(hind_fit+step,rev(hind_fit-step)),col="darkseagreen1",border=NA) #hindcast para
 lines(c(1979:2018),hind_fit,col="forestgreen",lwd=2.5) # model best estimate
 polygon(c(2018:2099,2099:2018),c(annualprojmax[13:94],rev(annualprojmin[13:94])),col="lightblue1",border=NA)#para + clim
@@ -54,29 +53,29 @@ points(c(1979:2018),meanyield_anomaly,col="black",pch=20,cex=1.6)
 legend(1980,-75,pch = c(20,NA,NA),lwd=c(NA,2,2),lty=c(NA,1,1),
        col=c("black","forestgreen","blue"),
        legend = c("Yield anomaly observation","Best model's hindcasts","Best model's projections"),bty="n",cex=2)
-legend(1981.5,-110, fill=c("darkseagreen1","lightblue1"),
+legend(1981.5,-102, fill=c("darkseagreen1","lightblue1"),
        legend = c("Hindcast window", "95% yield projections uncertainty range (climate + parameter)"),bty="n",cex=2)
 dev.off()
 
 
 
- #Plot of marginal yield distributions at 2020-2049/2070-2099
- for (k in 1:2){
+#Plot of marginal yield distributions at 2020-2049/2070-2099
+for (k in 1:2){
    if (k==1){
-     load("Metdata/proj_linearshifted_bestfit_2020_2049")
-     load("Metdata/proj_linearshifted_parasample_2020_2049")
-     selectedyears<-c(15:44)
-     load("Metdata/proj_30yravg_2020_2049")
-     load("Metdata/proj_fit_30yravg_2020_2049")
-     load("Metdata/cumu_uncertainty_2020_2049")
+      load("Metdata/proj_linearshifted_bestfit_2020_2049")
+      load("Metdata/proj_linearshifted_parasample_2020_2049")
+      selectedyears<-c(15:44)
+      load("Metdata/proj_30yravg_2020_2049")
+      load("Metdata/proj_fit_30yravg_2020_2049")
+      load("Metdata/cumu_uncertainty_2020_2049")
    }
    if (k==2){
-     load("Metdata/proj_linearshifted_bestfit_2070_2099")
-     load("Metdata/proj_linearshifted_parasample_2070_2099")
-     selectedyears<-c(65:94)
-     load("Metdata/proj_30yravg_2070_2099")
-     load("Metdata/proj_fit_30yravg_2070_2099")
-     load("Metdata/cumu_uncertainty_2070_2099")
+      load("Metdata/proj_linearshifted_bestfit_2070_2099")
+      load("Metdata/proj_linearshifted_parasample_2070_2099")
+      selectedyears<-c(65:94)
+      load("Metdata/proj_30yravg_2070_2099")
+      load("Metdata/proj_fit_30yravg_2070_2099")
+      load("Metdata/cumu_uncertainty_2070_2099")
    }
    #All
    vect_para_clim<-as.vector(proj_30yravg)
@@ -91,17 +90,17 @@ dev.off()
    if (k==1){
      boxstep<- -0.02
      yrange<-c(-0.06,0.14)
-     plotname<-"distribution_2020_2049"
+     plotname<-"distribution_2020_2049_new"
    }
    if (k==2){
      boxstep<- -0.007
      yrange<-c(-0.021,0.06)
-     plotname<-"distribution_2070_2099"
+     plotname<-"distribution_2070_2099_new"
    }
    png(paste("Plots/",plotname,".png"), width = 1000, height = 618)
    par(mar=c(4.5,5.1,3,21.1))
    plot(0,0,xlim = c(quantile(vect_para_clim,0.001),quantile(vect_para_clim,0.999)),ylim = yrange,
-        xlab="Yield anomaly (bush/acre)",ylab="Density",type = "n",yaxt="n",cex.axis=2,cex.lab=2)
+        xlab="Yield anomaly (bushel/acre)",ylab="Density",type = "n",yaxt="n",cex.axis=2,cex.lab=2)
    axis(2,at=seq(0,yrange[2],by=0.025),cex.axis=2) #y axis labels
    points(annualproj_none,0,pch=19)
    color<-c(rgb(1,0,0,0.6),"forestgreen",rgb(0,0,1,0.6))
@@ -115,8 +114,6 @@ dev.off()
      lines(density(get(paste("vect_",names[i],sep="")),na.rm=TRUE),col=color[which(cumu_uncertainty==sorted[1,i])],lwd=5)
      boxplot(get(paste("vect_",names[i],sep="")), horizontal = TRUE,na.rm=TRUE, xaxt="n",col=boxcolor[which(cumu_uncertainty==sorted[1,i])],
              frame=F, pch=20,ylim=yrange, main="", add=TRUE,at=i*boxstep,boxwex=boxstep,cex=0.5)
-     #points(mean(get(paste("vect_",names[i],sep=""))),i*boxstep,pch=5,cex=1.2)
-     #points(density(get(paste("vect_",names[i],sep="")))$x[which(density(get(paste("vect_",names[i],sep="")))$y==max(density(get(paste("vect_",names[i],sep="")))$y))],i*boxstep,pch=19,cex=1.2)
      mtext(side=4, at=i*boxstep, line=1,text[which(cumu_uncertainty==sorted[1,i])],las=1,col=color[which(cumu_uncertainty==sorted[1,i])],cex=1.5)
    }
    if (k==1){
